@@ -3,73 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CliftonStrengths 34 才干全景</title>
+    <title>CliftonStrengths - 才干全览</title>
 
-    <!-- 1. 引入 Tailwind CSS -->
+    <!-- 1. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 2. 引入 React 和 ReactDOM -->
+    <!-- 2. React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- 3. 引入 Babel (用于解析 JSX) -->
+    <!-- 3. Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
+    <!-- 4. Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
-        /* 自定义动画配置，因为 CDN 版 Tailwind 默认没有 animate-in */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-in { animation: fadeIn 0.5s ease-out forwards; }
-        .slide-in-from-bottom-4 { animation: slideUp 0.5s ease-out forwards; }
+        .slide-up { animation: slideUp 0.4s ease-out forwards; }
+        
+        /* Markdown Styles */
+        .markdown-body ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .markdown-body ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 1em; }
+        .markdown-body p { margin-bottom: 0.8em; line-height: 1.6; }
+        .markdown-body strong { font-weight: 700; color: #1e293b; }
+        .markdown-body h3 { font-size: 1.1em; font-weight: 700; margin-top: 1em; margin-bottom: 0.5em; color: #0f172a; }
+        
+        /* Utilities */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex flex-col">
+    <div id="root" class="h-full flex flex-col"></div>
 
-    <!-- 4. 你的 React 代码 -->
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef, useMemo } = React;
     
-        // --- 图标组件 (替代 lucide-react 库，直接内嵌 SVG 以便独立运行) ---
+        // --- Icons ---
         const IconWrapper = ({ children, size = 24, className = "", ...props }) => (
-            <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width={size} 
-                height={size} 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className={className}
-                {...props}
-            >
-                {children}
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
         );
+        const Icons = {
+            ArrowLeft: (p) => <IconWrapper {...p}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></IconWrapper>,
+            ArrowUp: (p) => <IconWrapper {...p}><path d="m18 15-6-6-6 6"/></IconWrapper>,
+            ArrowDown: (p) => <IconWrapper {...p}><path d="m6 9 6 6 6-6"/></IconWrapper>,
+            Star: (p) => <IconWrapper {...p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></IconWrapper>,
+            Zap: (p) => <IconWrapper {...p}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></IconWrapper>,
+            Heart: (p) => <IconWrapper {...p}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></IconWrapper>,
+            Brain: (p) => <IconWrapper {...p}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.5A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.5A2.5 2.5 0 0 0 14.5 2Z"/></IconWrapper>,
+            Quote: (p) => <IconWrapper {...p}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v5c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 1-1 1Z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v5c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 1-1 1Z"/></IconWrapper>,
+            CheckCircle: (p) => <IconWrapper {...p}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconWrapper>,
+            Play: (p) => <IconWrapper {...p}><polygon points="5 3 19 12 5 21 5 3"/></IconWrapper>,
+            X: (p) => <IconWrapper {...p}><path d="M18 6 6 18"/><path d="m6 6 18 12"/></IconWrapper>,
+            MessageSquare: (p) => <IconWrapper {...p}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></IconWrapper>,
+            Settings: (p) => <IconWrapper {...p}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></IconWrapper>,
+            Send: (p) => <IconWrapper {...p}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></IconWrapper>,
+            Trash2: (p) => <IconWrapper {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></IconWrapper>,
+            Bot: (p) => <IconWrapper {...p}><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></IconWrapper>,
+            Sparkles: (p) => <IconWrapper {...p}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></IconWrapper>,
+            Plus: (p) => <IconWrapper {...p}><path d="M12 5v14"/><path d="M5 12h14"/></IconWrapper>
+        };
     
-        const ArrowLeft = (props) => <IconWrapper {...props}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></IconWrapper>;
-        const Star = (props) => <IconWrapper {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></IconWrapper>;
-        const Zap = (props) => <IconWrapper {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></IconWrapper>;
-        const Heart = (props) => <IconWrapper {...props}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></IconWrapper>;
-        const Brain = (props) => <IconWrapper {...props}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.5A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.5A2.5 2.5 0 0 0 14.5 2Z"/></IconWrapper>;
-        const Quote = (props) => <IconWrapper {...props}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v5c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 1-1 1Z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v5c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 1-1 1Z"/></IconWrapper>;
-        const CheckCircle = (props) => <IconWrapper {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconWrapper>;
-        const Play = (props) => <IconWrapper {...props}><polygon points="5 3 19 12 5 21 5 3"/></IconWrapper>;
-        const X = (props) => <IconWrapper {...props}><path d="M18 6 6 18"/><path d="m6 6 18 12"/></IconWrapper>;
-    
-        // --- 数据源 ---
+        // --- Data ---
         const DOMAINS = {
-            EXECUTING: { id: 'executing', name: '执行力 (Executing)', color: 'bg-purple-600', lightColor: 'bg-purple-50', textColor: 'text-purple-600', borderColor: 'border-purple-200', icon: Zap, desc: '拥有执行力才干的人通晓如何以此促成事情的发生。' },
-            INFLUENCING: { id: 'influencing', name: '影响力 (Influencing)', color: 'bg-orange-500', lightColor: 'bg-orange-50', textColor: 'text-orange-600', borderColor: 'border-orange-200', icon: Star, desc: '拥有影响力才干的人有助于团队触及更广泛的受众。' },
-            RELATIONSHIP: { id: 'relationship', name: '关系建立 (Relationship)', color: 'bg-blue-500', lightColor: 'bg-blue-50', textColor: 'text-blue-600', borderColor: 'border-blue-200', icon: Heart, desc: '拥有关系建立才干的人是将团队凝聚在一起的粘合剂。' },
-            STRATEGIC: { id: 'strategic', name: '战略思维 (Strategic)', color: 'bg-green-600', lightColor: 'bg-green-50', textColor: 'text-green-600', borderColor: 'border-green-200', icon: Brain, desc: '拥有战略思维才干的人能帮助团队着眼于未来的可能性。' }
+            EXECUTING: { id: 'executing', name: '执行力', color: 'bg-purple-600', lightColor: 'bg-purple-50', textColor: 'text-purple-600', borderColor: 'border-purple-200', icon: Icons.Zap, desc: '拥有执行力才干的人通晓如何以此促成事情的发生。他们像精密的引擎，不知疲倦地将想法转化为现实。' },
+            INFLUENCING: { id: 'influencing', name: '影响力', color: 'bg-orange-500', lightColor: 'bg-orange-50', textColor: 'text-orange-600', borderColor: 'border-orange-200', icon: Icons.Star, desc: '拥有影响力才干的人有助于团队触及更广泛的受众。他们能够推销团队的想法，并为团队争取支持。' },
+            RELATIONSHIP: { id: 'relationship', name: '关系建立', color: 'bg-blue-500', lightColor: 'bg-blue-50', textColor: 'text-blue-600', borderColor: 'border-blue-200', icon: Icons.Heart, desc: '拥有关系建立才干的人是将团队凝聚在一起的粘合剂。他们能够在人与人之间建立深厚的情感纽带。' },
+            STRATEGIC: { id: 'strategic', name: '战略思维', color: 'bg-green-600', lightColor: 'bg-green-50', textColor: 'text-green-600', borderColor: 'border-green-200', icon: Icons.Brain, desc: '拥有战略思维才干的人能帮助团队着眼于未来的可能性。他们能够吸收和分析信息，帮助团队做出更好的决策。' }
         };
     
         const THEMES = [
-            { name: '成就 (Achiever)', domain: 'EXECUTING', enName: 'Achiever', tagline: '不知疲倦，乐在其中' },
-            { name: '统筹 (Arranger)', domain: 'EXECUTING', enName: 'Arranger', tagline: '组织协调，化繁为简', fullDesc: "你就像一位指挥家。当你面对复杂的局面时（涉及多变的人员、流程和截止日期），你会很兴奋。你喜欢掌控这些混乱的因素，重新排列它们，直到你确定找到了最高效、最富有成效的配置。", quote: "我不仅喜欢把事情做完，我喜欢把事情做得漂亮、高效。", videoPlaceholder: "Arranger Video" },
+            { 
+                name: '成就 (Achiever)', 
+                domain: 'EXECUTING', 
+                enName: 'Achiever', 
+                tagline: '不知疲倦，乐在其中',
+                fullDesc: "有成就才干的人，精力旺盛，不知疲倦，乐在其中。他们渴望完成任务，从工作中获得满足感。",
+                quote: "对我来说，每一天都是从零开始。到了一天结束时，我必须获得某种有形的成果，才会感觉良好。"
+            },
+            { 
+                name: '统筹 (Arranger)', 
+                domain: 'EXECUTING', 
+                enName: 'Arranger', 
+                tagline: '组织协调，化繁为简', 
+                fullDesc: "有统筹才干的人，具备组织能力，能够灵活地根据实际情况调整计划。他们喜欢处理复杂的局面，善于在混乱中建立秩序，寻找最佳的资源配置方案。", 
+                quote: "我不仅喜欢把事情做完，我喜欢把事情做得漂亮、高效。", 
+                videoPlaceholder: "Arranger Video" 
+            },
             { name: '信仰 (Belief)', domain: 'EXECUTING', enName: 'Belief', tagline: '矢志不渝，核心价值' },
             { name: '公平 (Consistency)', domain: 'EXECUTING', enName: 'Consistency', tagline: '一视同仁，建立规则' },
             { name: '审慎 (Deliberative)', domain: 'EXECUTING', enName: 'Deliberative', tagline: '深思熟虑，未雨绸缪' },
@@ -104,41 +127,303 @@
             { name: '战略 (Strategic)', domain: 'STRATEGIC', enName: 'Strategic', tagline: '运筹帷幄，另辟蹊径' },
         ];
     
-        // --- 组件定义 ---
-        const ThemeDetail = ({ theme, onBack }) => {
-            const domain = DOMAINS[theme.domain];
+        // --- API Logic ---
+        const callDeepSeekAPI = async (messages, apiKey, onChunk, onComplete, onError) => {
+            if (!apiKey) {
+                onError("请先点击右上角的“配置 Key”按钮进行设置");
+                return;
+            }
+            try {
+                const response = await fetch("https://api.deepseek.com/chat/completions", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        "Authorization": `Bearer ${apiKey}` 
+                    },
+                    body: JSON.stringify({ 
+                        model: "deepseek-chat", 
+                        messages: messages, 
+                        stream: false 
+                    })
+                });
+                
+                if (!response.ok) {
+                    let errorMsg = `API 请求失败 (${response.status})`;
+                    try {
+                        const err = await response.json();
+                        if (err.error && err.error.message) {
+                            if (err.error.message.includes("Insufficient Balance")) {
+                                errorMsg = "⚠️ 账户余额不足 (Insufficient Balance)。请登录 DeepSeek 官网充值后重试。";
+                            } else if (err.error.message.includes("Invalid API Key")) {
+                                errorMsg = "⚠️ API Key 无效。请检查 Key 是否正确复制。";
+                            } else {
+                                errorMsg = `API 错误: ${err.error.message}`;
+                            }
+                        }
+                    } catch (e) {}
+                    throw new Error(errorMsg);
+                }
+                
+                const data = await response.json();
+                if (!data.choices || !data.choices.length) throw new Error("API 返回数据格式异常");
+                onComplete(data.choices[0].message.content);
+            } catch (error) {
+                console.error("DeepSeek API call failed:", error);
+                if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+                     onError("网络请求失败。可能是网络问题，或者浏览器拦截了请求 (CORS)。如果是 DeepSeek 官方 API，通常支持跨域；请检查控制台以获取更多细节。");
+                } else {
+                     onError(error.message);
+                }
+            }
+        };
+    
+        const generatePrompts = (myStrengths) => {
+            if (myStrengths.length === 0) return ["我该如何开始探索我的才干？", "什么是才干的'阴影面' (Basement)？", "盖洛普测试的核心理念是什么？"];
+            const top1 = myStrengths[0];
+            const prompts = [`我的核心才干【${top1.name}】如何影响我的决策？`];
+            if (myStrengths.length >= 2) prompts.push(`我的前两个才干【${myStrengths[0].name}】和【${myStrengths[1].name}】如何协作？`);
+            const domains = myStrengths.map(t => t.domain);
+            const domainCounts = domains.reduce((acc, d) => ({...acc, [d]: (acc[d] || 0) + 1}), {});
+            const maxDomain = Object.keys(domainCounts).reduce((a, b) => domainCounts[a] > domainCounts[b] ? a : b);
+            prompts.push(`我的才干集中在【${DOMAINS[maxDomain].name}】，这对我意味着什么？`);
+            prompts.push(`基于我的才干组合，我适合什么样的职业环境？`);
+            return prompts;
+        };
+    
+        const SettingsModal = ({ isOpen, onClose, apiKey, setApiKey }) => {
+            if (!isOpen) return null;
+            const [localKey, setLocalKey] = useState(apiKey);
             return (
-                <div className="min-h-screen bg-white animate-in">
-                    <div className="bg-slate-900 text-white pt-12 pb-24 px-6 relative overflow-hidden">
-                        <div className="max-w-4xl mx-auto relative z-10">
-                            <button onClick={onBack} className="mb-8 flex items-center text-slate-300 hover:text-white transition-colors text-sm font-medium tracking-wide">
-                                <ArrowLeft size={16} className="mr-2" /> 返回才干列表
-                            </button>
-                            <div className="flex items-center gap-3 mb-4 opacity-80">
-                                <domain.icon size={20} className={domain.textColor.replace('text-', 'text-white ')} />
-                                <span className="text-sm uppercase tracking-widest font-semibold">{domain.name}</span>
-                            </div>
-                            <h1 className="text-5xl font-bold mb-6 tracking-tight">{theme.name}</h1>
-                            <p className="text-xl text-slate-300 font-light max-w-2xl leading-relaxed">
-                                拥有<span className={`font-semibold mx-1 ${domain.textColor.replace('text-', 'text-')}-300`}>{theme.enName}</span>才干的人，{theme.tagline}。
-                            </p>
+                <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 animate-in">
+                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold text-slate-900">设置 API Key</h3>
+                            <button onClick={onClose}><Icons.X size={20} className="text-slate-400 hover:text-slate-600" /></button>
                         </div>
-                        <div className={`absolute -right-20 -bottom-40 w-96 h-96 rounded-full opacity-10 blur-3xl ${domain.color}`}></div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-slate-700 mb-2">DeepSeek API Key</label>
+                            <input type="password" value={localKey} onChange={(e) => setLocalKey(e.target.value)} placeholder="sk-..." className="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none" />
+                            <p className="text-xs text-slate-500 mt-2">Key 仅保存在浏览器本地。</p>
+                        </div>
+                        <button onClick={() => { setApiKey(localKey); onClose(); }} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors">保存</button>
+                    </div>
+                </div>
+            );
+        };
+    
+        // --- Dedicated Chat Page ---
+        const ChatView = ({ myStrengths, setMyStrengths, onBack, apiKey, onOpenSettings }) => {
+            const [messages, setMessages] = useState([
+                { role: 'assistant', content: `你好！欢迎来到**才干解码室**。\n\n在这里，你可以自由排列你的才干组合。不同的排序代表了你独特的行为模式。\n\n请告诉我，你最近遇到了什么挑战？或者直接点击下方的建议问题。` }
+            ]);
+            const [input, setInput] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const messagesEndRef = useRef(null);
+    
+            useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+    
+            const moveItem = (index, direction) => {
+                const newStrengths = [...myStrengths];
+                const targetIndex = direction === 'up' ? index - 1 : index + 1;
+                if (targetIndex < 0 || targetIndex >= newStrengths.length) return;
+                [newStrengths[index], newStrengths[targetIndex]] = [newStrengths[targetIndex], newStrengths[index]];
+                setMyStrengths(newStrengths);
+            };
+    
+            const handleSend = async (text = input) => {
+                if (!text.trim()) return;
+                if (!apiKey) { onOpenSettings(); return; }
+                const userMsg = { role: 'user', content: text };
+                const newHistory = [...messages, userMsg];
+                setMessages(newHistory);
+                setInput('');
+                setIsLoading(true);
+                const systemPrompt = {
+                    role: 'system',
+                    content: `你是一位专业的盖洛普优势教练。用户的才干序列是（按重要性排序，第一位是核心驱动力）：${myStrengths.map((t, i) => `${i+1}. ${t.name}`).join(', ')}。请遵循以下原则：1. 核心才干：特别关注序列中前几个才干。2. 个性化排序：用户已经手动调整了才干顺序。3. 化学反应：分析不同才干如何相互加强或制约。4. 语气：专业、鼓励、建设性。5. 格式：使用 Markdown。`
+                };
+                await callDeepSeekAPI([systemPrompt, ...newHistory], apiKey, () => {}, (content) => {
+                    setMessages(prev => [...prev, { role: 'assistant', content: content }]);
+                    setIsLoading(false);
+                }, (err) => {
+                    setMessages(prev => [...prev, { role: 'assistant', content: `❌ **发生错误**: ${err}` }]);
+                    setIsLoading(false);
+                });
+            };
+            const suggestedPrompts = useMemo(() => generatePrompts(myStrengths), [myStrengths]);
+    
+            return (
+                <div className="flex flex-col md:flex-row h-full bg-slate-100 animate-in overflow-hidden">
+                    {/* Left Sidebar: Strengths Sorting */}
+                    <div className="w-full md:w-80 bg-white border-r border-slate-200 flex flex-col z-20 shadow-lg md:shadow-none flex-shrink-0 max-h-[35vh] md:max-h-full md:h-full">
+                        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 flex-shrink-0">
+                            <button onClick={onBack} className="flex items-center text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                                <Icons.ArrowLeft size={18} className="mr-1" /> 返回全览
+                            </button>
+                            <h2 className="font-bold text-slate-800">我的才干</h2>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+                            {myStrengths.length === 0 ? (
+                                <div className="text-center py-10 px-4 border-2 border-dashed border-slate-200 rounded-xl">
+                                    <p className="text-slate-400 text-sm mb-4">点击“返回全览”去点亮你的星星吧</p>
+                                </div>
+                            ) : (
+                                myStrengths.map((theme, index) => {
+                                    const domain = DOMAINS[theme.domain];
+                                    return (
+                                        <div key={theme.name} className="bg-white border border-slate-200 rounded-lg p-2.5 shadow-sm flex items-center gap-3 relative group hover:border-purple-200 transition-colors">
+                                            <div className={`w-6 h-6 rounded-full ${domain.bg || domain.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                                                {index + 1}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold text-slate-800 text-sm truncate">{theme.name.split(' ')[0]}</span>
+                                                    <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded ${domain.lightColor} ${domain.textColor}`}>{domain.id.slice(0,4)}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="text-slate-400 hover:text-purple-600 disabled:opacity-20"><Icons.ArrowUp size={14} /></button>
+                                                <button onClick={() => moveItem(index, 'down')} disabled={index === myStrengths.length - 1} className="text-slate-400 hover:text-purple-600 disabled:opacity-20"><Icons.ArrowDown size={14} /></button>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                            {myStrengths.length > 0 && (
+                                <div className="bg-blue-50 p-3 rounded-lg mt-2">
+                                    <p className="text-[10px] text-blue-700 leading-relaxed">通过↑↓箭头调整顺序，把最像你的才干排在前面。</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
     
-                    <div className="max-w-3xl mx-auto px-6 -mt-16 relative z-20">
+                    {/* Right: Chat Area */}
+                    <div className="flex-1 flex flex-col h-full relative overflow-hidden min-h-0 bg-slate-50">
+                        {/* Chat Header - Fixed Height */}
+                        <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-4 sm:px-6 shadow-sm z-10 flex-shrink-0">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-purple-100 p-1.5 rounded-lg text-purple-600"><Icons.Bot size={20} /></div>
+                                <span className="font-bold text-slate-800">AI 深度解码</span>
+                            </div>
+                            {/* API Key Button */}
+                            <button onClick={onOpenSettings} className={`text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0 ${apiKey ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-red-50 text-red-600 hover:bg-red-100 animate-pulse'}`}>
+                                <Icons.Settings size={14} />
+                                {apiKey ? '配置 Key' : '配置 Key (未设置)'}
+                            </button>
+                        </div>
+    
+                        {/* Messages List - Scrollable */}
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scroll-smooth no-scrollbar min-h-0">
+                            {messages.map((m, i) => (
+                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    {m.role === 'assistant' && (
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white mr-3 mt-1 shadow-md flex-shrink-0">
+                                            <Icons.Bot size={16} />
+                                        </div>
+                                    )}
+                                    <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 shadow-sm text-sm leading-relaxed ${
+                                        m.role === 'user' 
+                                        ? 'bg-slate-900 text-white rounded-tr-none' 
+                                        : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+                                    }`}>
+                                        {m.role === 'assistant' 
+                                            ? <div className="markdown-body" dangerouslySetInnerHTML={{__html: marked.parse(m.content)}} /> 
+                                            : m.content
+                                        }
+                                    </div>
+                                </div>
+                            ))}
+                            {isLoading && (
+                                <div className="flex items-center gap-2 text-slate-400 text-xs ml-12">
+                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></div>
+                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></div>
+                                    正在思考...
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+    
+                        {/* Input Area - Fixed at Bottom */}
+                        <div className="p-4 sm:p-6 bg-white border-t border-slate-200 z-20 flex-shrink-0">
+                            {!isLoading && (
+                                <div className="flex gap-2 overflow-x-auto pb-3 no-scrollbar mb-2">
+                                    {suggestedPrompts.map((prompt, idx) => (
+                                        <button key={idx} onClick={() => handleSend(prompt)} className="whitespace-nowrap px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-medium rounded-full border border-purple-100 hover:bg-purple-100 hover:border-purple-200 transition-colors flex-shrink-0">
+                                            {prompt}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            <div className="relative">
+                                <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="输入你的困惑..." className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all" />
+                                <button onClick={() => handleSend()} disabled={isLoading || !input.trim()} className="absolute right-2 top-2 p-1.5 bg-slate-900 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                    <Icons.Send size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+    
+        // --- Existing Components ---
+        const ThemeDetail = ({ theme, onBack, isSelected, onToggleSelect }) => {
+            const domain = DOMAINS[theme.domain];
+            // Use light color for background, and original color (or darker) for text elements
+            const headerBg = domain.lightColor; // e.g., bg-purple-50
+            const headerTextMain = "text-slate-900";
+            const headerTextSub = "text-slate-600";
+            
+            return (
+                <div className="flex-1 bg-white animate-in overflow-y-auto">
+                   {/* Updated Header Style */}
+                   <div className={`${headerBg} pt-12 pb-24 px-6 relative overflow-hidden`}>
+                        <div className="max-w-4xl mx-auto relative z-10">
+                            <button onClick={onBack} className={`mb-8 flex items-center ${headerTextSub} hover:${headerTextMain} transition-colors text-sm font-medium tracking-wide`}>
+                                <Icons.ArrowLeft size={16} className="mr-2" /> 返回才干全景
+                            </button>
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-4 opacity-80">
+                                        <domain.icon size={20} className={domain.textColor} />
+                                        <span className={`text-sm uppercase tracking-widest font-semibold ${domain.textColor}`}>{domain.name}</span>
+                                    </div>
+                                    <h1 className={`text-5xl font-bold mb-6 tracking-tight ${headerTextMain}`}>{theme.name}</h1>
+                                </div>
+                                <button 
+                                    onClick={() => onToggleSelect(theme)} 
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all shadow-sm ${
+                                        isSelected 
+                                        ? 'bg-slate-900 text-white hover:bg-slate-800' // In light mode, selected button is dark for contrast
+                                        : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                                    }`}
+                                >
+                                    <Icons.Star size={18} fill={isSelected ? "currentColor" : "none"} className={isSelected ? "text-yellow-400" : "text-slate-400"} />
+                                    {isSelected ? "已添加" : "加入我的才干"}
+                                </button>
+                            </div>
+                            <p className={`text-xl ${headerTextSub} font-light max-w-2xl leading-relaxed`}>
+                                拥有<span className={`font-semibold mx-1 ${domain.textColor}`}>{theme.enName}</span>才干的人，{theme.tagline}。
+                            </p>
+                        </div>
+                        {/* Abstract blob - keeping it subtle */}
+                        <div className={`absolute -right-20 -bottom-40 w-96 h-96 rounded-full opacity-40 blur-3xl ${domain.color.replace('bg-', 'bg-opacity-20 ')}`}></div>
+                    </div>
+    
+                    <div className="max-w-3xl mx-auto px-6 -mt-16 relative z-20 pb-20">
                         <div className="bg-white rounded-xl shadow-2xl overflow-hidden aspect-video mb-16 relative group cursor-pointer border border-slate-100">
-                            <div className="absolute inset-0 bg-slate-900/5 flex items-center justify-center group-hover:bg-slate-900/10 transition-colors">
+                             <div className="absolute inset-0 bg-slate-900/5 flex items-center justify-center group-hover:bg-slate-900/10 transition-colors">
                                 <div className={`w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
-                                    <Play size={32} className={`${domain.textColor} ml-2`} fill="currentColor" />
+                                    <Icons.Play size={32} className={`${domain.textColor} ml-2`} fill="currentColor" />
                                 </div>
                             </div>
                             <div className="absolute bottom-6 left-6 text-slate-900 font-medium bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-sm">
                                 介绍视频：{theme.enName}
                             </div>
                         </div>
-    
-                        <div className="space-y-16 pb-24">
+                        <div className="space-y-16">
                             <section>
                                 <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
                                     <span className={`w-1 h-8 ${domain.color} rounded-full mr-4`}></span>
@@ -147,13 +432,11 @@
                                 <p className="text-lg text-slate-600 leading-loose">
                                     {theme.fullDesc || "此才干的详细描述将展示在这里。它通常会解释这种思维、感觉和行为模式是如何自然发生的。对于拥有这个才干的人来说，这种模式是本能的，且不可或缺的。"}
                                 </p>
-                                <p className="text-lg text-slate-600 leading-loose mt-4">
-                                    这个才干不仅是你做事的方式，更是你观察世界的滤镜。理解它，是你发挥优势的第一步。
-                                </p>
                             </section>
-    
+
+                            {/* New Quote Section based on image_ee958a.png */}
                             <section className="bg-slate-50 p-10 rounded-2xl border border-slate-100 relative overflow-hidden">
-                                <Quote size={64} className="absolute top-4 left-4 text-slate-200 opacity-50" />
+                                <Icons.Quote size={64} className="absolute top-4 left-4 text-slate-200 opacity-50" />
                                 <blockquote className="relative z-10 text-center">
                                     <p className="text-2xl font-medium text-slate-800 italic mb-4">
                                         "{theme.quote || `我利用${theme.name}才干，将复杂转化为简单，将混乱转化为有序。`}"
@@ -163,52 +446,27 @@
                                     </footer>
                                 </blockquote>
                             </section>
-    
-                            <section className="grid md:grid-cols-2 gap-12">
+
+                             <section className="grid md:grid-cols-2 gap-12">
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-                                        <CheckCircle size={20} className="text-green-500 mr-2" />
-                                        高光时刻 (The Balcony)
+                                        <Icons.CheckCircle size={20} className="text-green-500 mr-2" />
+                                        高光时刻
                                     </h3>
                                     <ul className="space-y-3 text-slate-600">
                                         <li className="flex items-start"><span className="mr-2">•</span> 能够快速理清混乱的局面</li>
-                                        <li className="flex items-start"><span className="mr-2">•</span> 灵活应对变化，随时调整计划</li>
                                         <li className="flex items-start"><span className="mr-2">•</span> 资源配置的高手</li>
-                                        <li className="flex items-start"><span className="mr-2">•</span> 追求最高的效率</li>
                                     </ul>
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-                                        <X size={20} className="text-red-400 mr-2" />
-                                        潜在阴影 (The Basement)
+                                        <Icons.X size={20} className="text-red-400 mr-2" />
+                                        潜在阴影
                                     </h3>
                                     <ul className="space-y-3 text-slate-600">
                                         <li className="flex items-start"><span className="mr-2">•</span> 可能会因为频繁改变让这人感到困惑</li>
                                         <li className="flex items-start"><span className="mr-2">•</span> 难以忍受僵化和按部就班</li>
-                                        <li className="flex items-start"><span className="mr-2">•</span> 可能会接手太多控制权</li>
-                                        <li className="flex items-start"><span className="mr-2">•</span> 显得缺乏耐心</li>
                                     </ul>
-                                </div>
-                            </section>
-                            
-                             <section>
-                                <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                                <span className={`w-1 h-8 ${domain.color} rounded-full mr-4`}></span>
-                                如何发挥你的潜力
-                                </h2>
-                                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                                <ul className="space-y-4">
-                                    {[1, 2, 3].map((i) => (
-                                    <li key={i} className="flex group">
-                                        <div className={`flex-shrink-0 w-8 h-8 rounded-full ${domain.lightColor} ${domain.textColor} flex items-center justify-center font-bold mr-4 group-hover:scale-110 transition-transform`}>
-                                        {i}
-                                        </div>
-                                        <p className="text-slate-600 leading-relaxed pt-1">
-                                        寻找那些需要应对突发状况或复杂变量的角色。在动态的环境中，你的才干最能发光发热。避免那些死板、缺乏变化的例行公事。
-                                        </p>
-                                    </li>
-                                    ))}
-                                </ul>
                                 </div>
                             </section>
                         </div>
@@ -217,86 +475,136 @@
             );
         };
     
-        const Overview = ({ onSelectTheme }) => {
+        const Overview = ({ onSelectTheme, myStrengths, onToggleSelect, onOpenChat }) => {
             const [filter, setFilter] = useState('ALL');
             const filteredThemes = filter === 'ALL' ? THEMES : THEMES.filter(t => t.domain === filter);
+            
+            const activeDomain = filter !== 'ALL' ? Object.values(DOMAINS).find(d => d.id.toUpperCase() === filter) : null;
     
             return (
-                <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
-                    <header className="bg-white border-b border-slate-200 pt-16 pb-12 px-4 sm:px-6 text-center">
+                <div className="flex-1 bg-slate-50 text-slate-800 font-sans overflow-y-auto pb-24">
+                    <header className="bg-white border-b border-slate-200 pt-16 pb-8 px-4 sm:px-6 text-center relative">
                         <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
-                            CliftonStrengths<sup className="text-sm align-top text-slate-400">®</sup> 34 才干全景
+                            CliftonStrengths<sup className="text-sm align-top text-slate-400">®</sup> 34
                         </h1>
-                        <p className="max-w-2xl mx-auto text-lg text-slate-500 mb-8 leading-relaxed">
-                            探索定义你独特优势的DNA。每个人都有独特的天赋排序，理解它们是释放潜能的关键。
+                        <p className="max-w-2xl mx-auto text-lg text-slate-500 mb-8">
+                            点亮星星，构建你独一无二的才干组合。
                         </p>
-                        <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
-                            <button onClick={() => setFilter('ALL')} className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${filter === 'ALL' ? 'bg-slate-800 text-white shadow-lg scale-105' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}>全部显示</button>
+                        
+                        {/* Filter Buttons - Tooltip Removed */}
+                        <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto mb-2 relative z-20">
+                            <button onClick={() => setFilter('ALL')} className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${filter === 'ALL' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 border hover:bg-slate-50'}`}>才干全景</button>
                             {Object.values(DOMAINS).map(domain => (
-                                <button
-                                    key={domain.id}
-                                    onClick={() => setFilter(domain.id === 'executing' ? 'EXECUTING' : domain.id === 'influencing' ? 'INFLUENCING' : domain.id === 'relationship' ? 'RELATIONSHIP' : 'STRATEGIC')}
-                                    className={`px-5 py-2 rounded-full text-sm font-semibold flex items-center transition-all duration-200 ${filter === domain.id.toUpperCase() ? `${domain.color} text-white shadow-md scale-105` : `bg-white text-slate-600 border border-slate-200 hover:bg-slate-50`}`}
-                                >
-                                    <domain.icon size={14} className="mr-2" />
-                                    {domain.name.split(' ')[0]}
-                                </button>
+                                <div key={domain.id} className="relative group">
+                                    <button 
+                                        onClick={() => setFilter(domain.id === 'executing' ? 'EXECUTING' : domain.id === 'influencing' ? 'INFLUENCING' : domain.id === 'relationship' ? 'RELATIONSHIP' : 'STRATEGIC')} 
+                                        className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center transition-all ${filter === domain.id.toUpperCase() ? `${domain.color} text-white` : `bg-white text-slate-600 border hover:bg-slate-50`}`}
+                                    >
+                                        <domain.icon size={14} className="mr-2" /> 
+                                        {domain.name.split(' ')[0]}
+                                    </button>
+                                </div>
                             ))}
+                        </div>
+
+                        {/* Active Domain Description Banner */}
+                        <div className={`transition-all duration-500 ease-in-out overflow-hidden ${activeDomain ? 'max-h-24 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}>
+                            {activeDomain && (
+                                <div className={`inline-block px-6 py-2 rounded-lg ${activeDomain.lightColor} border ${activeDomain.borderColor} max-w-2xl mx-auto`}>
+                                    <p className={`text-sm ${activeDomain.textColor} font-medium`}>
+                                        <activeDomain.icon size={14} className="inline mr-1.5 -mt-0.5" />
+                                        {activeDomain.desc}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </header>
     
                     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-                        {filter === 'ALL' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                                {Object.values(DOMAINS).map(domain => (
-                                    <div key={domain.id} className={`p-5 rounded-xl border-l-4 ${domain.borderColor.replace('border', 'border-l')} bg-white shadow-sm`}>
-                                        <h3 className={`font-bold ${domain.textColor} mb-2 flex items-center`}>
-                                            <domain.icon size={18} className="mr-2" />
-                                            {domain.name.split(' (')[0]}
-                                        </h3>
-                                        <p className="text-xs text-slate-500 leading-relaxed">{domain.desc}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-    
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                             {filteredThemes.map((theme) => {
                                 const domain = DOMAINS[theme.domain];
+                                const isSelected = myStrengths.some(t => t.name === theme.name);
                                 return (
-                                    <div key={theme.name} onClick={() => onSelectTheme(theme)} className="group relative bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-40 sm:h-48">
-                                        <div className={`h-1.5 w-full ${domain.color}`}></div>
-                                        <div className="p-5 flex flex-col h-full justify-between relative z-10">
+                                    <div key={theme.name} className={`group relative bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col h-40 sm:h-48`}>
+                                        <div className={`h-1 w-full ${domain.color}`}></div>
+                                        <button onClick={(e) => { e.stopPropagation(); onToggleSelect(theme); }} className={`absolute top-3 right-3 z-30 p-1.5 rounded-full transition-all hover:scale-110 focus:outline-none`} title={isSelected ? "移除" : "添加"}>
+                                            <Icons.Star size={20} className={`transition-colors ${isSelected ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200 hover:text-slate-300'}`} />
+                                        </button>
+                                        <div className="p-5 flex flex-col h-full relative z-10 cursor-pointer" onClick={() => onSelectTheme(theme)}>
                                             <div>
-                                                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-2 ${domain.lightColor} ${domain.textColor}`}>
-                                                    {domain.id === 'relationship' ? 'Relationship' : domain.id}
-                                                </span>
-                                                <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight mb-1 group-hover:text-slate-900">{theme.name.split(' ')[0]}</h3>
+                                                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-3 ${domain.lightColor} ${domain.textColor}`}>{domain.id === 'relationship' ? 'Relationship' : domain.id}</span>
+                                                <h3 className={`text-xl font-bold leading-tight mb-1 text-slate-800`}>{theme.name.split(' ')[0]}</h3>
                                                 <p className="text-xs text-slate-400 font-medium">{theme.enName}</p>
                                             </div>
-                                            <div className="mt-2 pt-3 border-t border-slate-50">
-                                                <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed group-hover:text-slate-600 transition-colors">{theme.tagline}</p>
-                                            </div>
+                                            <div className="absolute bottom-5 left-5 right-16"><p className="text-xs text-slate-500 line-clamp-1 leading-relaxed">{theme.tagline}</p></div>
                                         </div>
-                                        <domain.icon className={`absolute -bottom-4 -right-4 w-24 h-24 opacity-0 group-hover:opacity-5 transition-opacity duration-500 ${domain.textColor}`} />
+                                        <domain.icon className={`absolute -bottom-4 -right-4 w-24 h-24 opacity-5 pointer-events-none ${domain.textColor}`} />
                                     </div>
                                 );
                             })}
                         </div>
                     </main>
-                    <footer className="bg-slate-900 text-slate-400 py-12 text-center text-sm">
-                        <p>© {new Date().getFullYear()} 个人才干展示站. 基于 Gallup CliftonStrengths® 概念设计.</p>
-                    </footer>
                 </div>
             );
         };
     
         function App() {
+            const [currentView, setCurrentView] = useState('overview');
             const [selectedTheme, setSelectedTheme] = useState(null);
-            useEffect(() => { window.scrollTo(0, 0); }, [selectedTheme]);
+            const [myStrengths, setMyStrengths] = useState([]);
+            const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+            const [apiKey, setApiKey] = useState(localStorage.getItem('deepseek_key') || '');
+    
+            useEffect(() => { window.scrollTo(0, 0); }, [currentView]);
+            useEffect(() => { localStorage.setItem('deepseek_key', apiKey); }, [apiKey]);
+    
+            const toggleStrength = (theme) => {
+                setMyStrengths(prev => {
+                    const exists = prev.some(t => t.name === theme.name);
+                    if (exists) return prev.filter(t => t.name !== theme.name);
+                    return [...prev, theme];
+                });
+            };
+    
+            const goToDetail = (theme) => { setSelectedTheme(theme); setCurrentView('detail'); };
+            const goToOverview = () => { setSelectedTheme(null); setCurrentView('overview'); };
+            const goToChat = () => { setCurrentView('chat'); };
+    
             return (
-                <div className="antialiased">
-                    {selectedTheme ? <ThemeDetail theme={selectedTheme} onBack={() => setSelectedTheme(null)} /> : <Overview onSelectTheme={setSelectedTheme} />}
+                <div className="antialiased h-full flex flex-col">
+                    <nav className="h-14 bg-white/80 backdrop-blur border-b border-slate-200 z-50 px-4 sm:px-6 flex justify-between items-center flex-shrink-0">
+                         <div className="font-bold text-slate-900 tracking-tight flex items-center gap-2 cursor-pointer" onClick={goToOverview}>
+                             <span></span>
+                         </div>
+                         <div className="flex items-center gap-4">
+                             <div onClick={goToChat} className="hidden sm:flex items-center bg-slate-100 hover:bg-slate-200 transition-colors rounded-full px-3 py-1 cursor-pointer group" title="点击进入 AI 解码室">
+                                 <span className="text-xs font-bold text-slate-500 uppercase mr-2 group-hover:text-slate-700">我的才干</span>
+                                 <div className="flex gap-1 items-center">
+                                    {myStrengths.length === 0 && <span className="text-[10px] text-slate-400 font-normal">点击星星选择</span>}
+                                    {myStrengths.slice(0, 5).map((_, i) => (
+                                        <div key={i} className={`w-2 h-2 rounded-full bg-slate-800`}></div>
+                                    ))}
+                                    {myStrengths.length > 5 && <span className="text-[10px] font-bold text-slate-600 ml-0.5">+{myStrengths.length - 5}</span>}
+                                 </div>
+                                 <Icons.MessageSquare size={14} className="ml-2 text-slate-400 group-hover:text-slate-600" />
+                             </div>
+                         </div>
+                    </nav>
+                    <div className="flex-1 overflow-hidden relative">
+                        {currentView === 'chat' ? (
+                            <ChatView myStrengths={myStrengths} setMyStrengths={setMyStrengths} onBack={goToOverview} apiKey={apiKey} onOpenSettings={() => setIsSettingsOpen(true)} />
+                        ) : currentView === 'detail' && selectedTheme ? (
+                            <div className="h-full overflow-y-auto">
+                                <ThemeDetail theme={selectedTheme} onBack={goToOverview} isSelected={myStrengths.some(t => t.name === selectedTheme.name)} onToggleSelect={toggleStrength} />
+                            </div>
+                        ) : (
+                            <div className="h-full overflow-y-auto">
+                                <Overview onSelectTheme={goToDetail} myStrengths={myStrengths} onToggleSelect={toggleStrength} onOpenChat={goToChat} />
+                            </div>
+                        )}
+                    </div>
+                    <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} apiKey={apiKey} setApiKey={setApiKey} />
                 </div>
             );
         }
