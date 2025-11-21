@@ -30,6 +30,7 @@
         .markdown-body p { margin-bottom: 0.8em; line-height: 1.6; }
         .markdown-body strong { font-weight: 700; color: #1e293b; }
         .markdown-body h3 { font-size: 1.1em; font-weight: 700; margin-top: 1em; margin-bottom: 0.5em; color: #0f172a; }
+        .markdown-body blockquote { border-left: 4px solid #e2e8f0; padding-left: 1em; color: #64748b; font-style: italic; }
         
         /* Utilities */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -61,73 +62,441 @@
             MessageSquare: (p) => <IconWrapper {...p}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></IconWrapper>,
             Settings: (p) => <IconWrapper {...p}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></IconWrapper>,
             Send: (p) => <IconWrapper {...p}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></IconWrapper>,
-            Trash2: (p) => <IconWrapper {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></IconWrapper>,
             Bot: (p) => <IconWrapper {...p}><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></IconWrapper>,
             Sparkles: (p) => <IconWrapper {...p}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></IconWrapper>,
-            Plus: (p) => <IconWrapper {...p}><path d="M12 5v14"/><path d="M5 12h14"/></IconWrapper>
+            Lightbulb: (p) => <IconWrapper {...p}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2 1.5-3.5a6 6 0 0 0-11 0c0 1.5.5 2.5 1.5 3.5 2.5 1.1 3 1.5 3 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></IconWrapper>,
+            Target: (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></IconWrapper>,
+            Shield: (p) => <IconWrapper {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></IconWrapper>,
+            AlertTriangle: (p) => <IconWrapper {...p}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconWrapper>,
+            Search: (p) => <IconWrapper {...p}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></IconWrapper>,
+            Users: (p) => <IconWrapper {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></IconWrapper>
         };
     
-        // --- Data ---
+        // --- Data Configuration ---
         const DOMAINS = {
-            EXECUTING: { id: 'executing', name: '执行力', color: 'bg-purple-600', lightColor: 'bg-purple-50', textColor: 'text-purple-600', borderColor: 'border-purple-200', icon: Icons.Zap, desc: '拥有执行力才干的人通晓如何以此促成事情的发生。他们像精密的引擎，不知疲倦地将想法转化为现实。' },
-            INFLUENCING: { id: 'influencing', name: '影响力', color: 'bg-orange-500', lightColor: 'bg-orange-50', textColor: 'text-orange-600', borderColor: 'border-orange-200', icon: Icons.Star, desc: '拥有影响力才干的人有助于团队触及更广泛的受众。他们能够推销团队的想法，并为团队争取支持。' },
-            RELATIONSHIP: { id: 'relationship', name: '关系建立', color: 'bg-blue-500', lightColor: 'bg-blue-50', textColor: 'text-blue-600', borderColor: 'border-blue-200', icon: Icons.Heart, desc: '拥有关系建立才干的人是将团队凝聚在一起的粘合剂。他们能够在人与人之间建立深厚的情感纽带。' },
-            STRATEGIC: { id: 'strategic', name: '战略思维', color: 'bg-green-600', lightColor: 'bg-green-50', textColor: 'text-green-600', borderColor: 'border-green-200', icon: Icons.Brain, desc: '拥有战略思维才干的人能帮助团队着眼于未来的可能性。他们能够吸收和分析信息，帮助团队做出更好的决策。' }
+            EXECUTING: { id: 'executing', name: '执行力', color: 'bg-purple-600', lightColor: 'bg-purple-50', textColor: 'text-purple-600', borderColor: 'border-purple-200', icon: Icons.Zap, desc: '拥有执行力才干的人通晓如何以此促成事情的发生。' },
+            INFLUENCING: { id: 'influencing', name: '影响力', color: 'bg-orange-500', lightColor: 'bg-orange-50', textColor: 'text-orange-600', borderColor: 'border-orange-200', icon: Icons.Star, desc: '拥有影响力才干的人有助于团队触及更广泛的受众。' },
+            RELATIONSHIP: { id: 'relationship', name: '关系建立', color: 'bg-blue-500', lightColor: 'bg-blue-50', textColor: 'text-blue-600', borderColor: 'border-blue-200', icon: Icons.Heart, desc: '拥有关系建立才干的人是将团队凝聚在一起的粘合剂。' },
+            STRATEGIC: { id: 'strategic', name: '战略思维', color: 'bg-green-600', lightColor: 'bg-green-50', textColor: 'text-green-600', borderColor: 'border-green-200', icon: Icons.Brain, desc: '拥有战略思维才干的人能帮助团队着眼于未来的可能性。' }
         };
     
+        // --- 34 Theme Data (Complete) ---
         const THEMES = [
-            { 
-                name: '成就 (Achiever)', 
-                domain: 'EXECUTING', 
-                enName: 'Achiever', 
+            // === 执行力 Executing ===
+            {
+                name: '成就 (Achiever)',
+                domain: 'EXECUTING',
+                enName: 'Achiever',
                 tagline: '不知疲倦，乐在其中',
-                fullDesc: "有成就才干的人，精力旺盛，不知疲倦，乐在其中。他们渴望完成任务，从工作中获得满足感。",
-                quote: "对我来说，每一天都是从零开始。到了一天结束时，我必须获得某种有形的成果，才会感觉良好。"
+                metaphor: '内部的火焰',
+                balcony: '高效，有始有终',
+                basement: '工作狂，急于求成，没人情味，清单主义',
+                mechanism: '这种驱动力并非来自外部的压力，而是一种恒定的、无法熄灭的内部火焰。如果一天过去而没有产出，他们会感到不适。他们不需要别人来设定节奏；他们自己就是节奏的设定者。',
+                orgStrengths: '他们是组织的中流砥柱。当其他人因为疲惫而停滞不前时，成就者能凭借意志力坚持下去。他们自然地推崇高效率，并倾向于通过长时间的工作来确保目标的达成。',
+                blindSpots: '他们往往很难对新的承诺说“不”。因为每一个新任务都像是一座等待攀登的山峰。这导致他们容易过度承诺，进而引发倦怠。他们可能会对那些缺乏同样耐力的同事感到不耐烦。'
             },
-            { 
-                name: '统筹 (Arranger)', 
-                domain: 'EXECUTING', 
-                enName: 'Arranger', 
-                tagline: '组织协调，化繁为简', 
-                fullDesc: "有统筹才干的人，具备组织能力，能够灵活地根据实际情况调整计划。他们喜欢处理复杂的局面，善于在混乱中建立秩序，寻找最佳的资源配置方案。", 
-                quote: "我不仅喜欢把事情做完，我喜欢把事情做得漂亮、高效。", 
-                videoPlaceholder: "Arranger Video" 
+            {
+                name: '统筹 (Arranger)',
+                domain: 'EXECUTING',
+                enName: 'Arranger',
+                tagline: '组织协调，化繁为简',
+                metaphor: '指挥家',
+                balcony: '灵活，善于协调多任务',
+                basement: '控制狂，喜欢瞎指挥，过于善变，朝令夕改',
+                mechanism: '统筹者从根本上反对僵化的程序。他们的思维是动态的，时刻在问：“这是做这件事的绝对最佳方式吗？”他们的大脑就像一个能够实时处理多任务的操作系统，始终在后台运行优化算法。',
+                orgStrengths: '在混乱环境中蓬勃发展。他们擅长最大限度地利用现有资源。当突发事件打乱计划时，统筹者会迅速切换到“B计划”。',
+                blindSpots: '统筹者的灵活性有时会被误解为缺乏原则或善变。他们对他人的混乱缺乏耐心，可能因为不断改变流程而让那些依赖稳定流程的同事感到抓狂。'
             },
-            { name: '信仰 (Belief)', domain: 'EXECUTING', enName: 'Belief', tagline: '矢志不渝，核心价值' },
-            { name: '公平 (Consistency)', domain: 'EXECUTING', enName: 'Consistency', tagline: '一视同仁，建立规则' },
-            { name: '审慎 (Deliberative)', domain: 'EXECUTING', enName: 'Deliberative', tagline: '深思熟虑，未雨绸缪' },
-            { name: '纪律 (Discipline)', domain: 'EXECUTING', enName: 'Discipline', tagline: '井然有序，注重结构' },
-            { name: '专注 (Focus)', domain: 'EXECUTING', enName: 'Focus', tagline: '目标明确，拒绝干扰' },
-            { name: '责任 (Responsibility)', domain: 'EXECUTING', enName: 'Responsibility', tagline: '一诺千金，完全心理所有权' },
-            { name: '排难 (Restorative)', domain: 'EXECUTING', enName: 'Restorative', tagline: '解决问题，恢复生机' },
-            { name: '行动 (Activator)', domain: 'INFLUENCING', enName: 'Activator', tagline: '此时不做，更待何时' },
-            { name: '统率 (Command)', domain: 'INFLUENCING', enName: 'Command', tagline: '掌舵领航，直面冲突' },
-            { name: '沟通 (Communication)', domain: 'INFLUENCING', enName: 'Communication', tagline: '妙语连珠，生动表达' },
-            { name: '竞争 (Competition)', domain: 'INFLUENCING', enName: 'Competition', tagline: '力争上游，追求胜利' },
-            { name: '完美 (Maximizer)', domain: 'INFLUENCING', enName: 'Maximizer', tagline: '精益求精，从优秀到卓越' },
-            { name: '自信 (Self-Assurance)', domain: 'INFLUENCING', enName: 'Self-Assurance', tagline: '内心笃定，相信直觉' },
-            { name: '追求 (Significance)', domain: 'INFLUENCING', enName: 'Significance', tagline: '渴望认可，产生影响' },
-            { name: '取悦 (Woo)', domain: 'INFLUENCING', enName: 'Woo', tagline: '赢得他人，享受社交' },
-            { name: '适应 (Adaptability)', domain: 'RELATIONSHIP', enName: 'Adaptability', tagline: '随遇而安，活在当下' },
-            { name: '关联 (Connectedness)', domain: 'RELATIONSHIP', enName: 'Connectedness', tagline: '万物相连，因果循环' },
-            { name: '伯乐 (Developer)', domain: 'RELATIONSHIP', enName: 'Developer', tagline: '见微知著，成人之美' },
-            { name: '共情 (Empathy)', domain: 'RELATIONSHIP', enName: 'Empathy', tagline: '感同身受，情绪共鸣' },
-            { name: '和谐 (Harmony)', domain: 'RELATIONSHIP', enName: 'Harmony', tagline: '求同存异，避免冲突' },
-            { name: '包容 (Includer)', domain: 'RELATIONSHIP', enName: 'Includer', tagline: '海纳百川，不落一人' },
-            { name: '个别 (Individualization)', domain: 'RELATIONSHIP', enName: 'Individualization', tagline: '因材施教，独一无二' },
-            { name: '积极 (Positivity)', domain: 'RELATIONSHIP', enName: 'Positivity', tagline: '乐观向上，充满热情' },
-            { name: '交往 (Relator)', domain: 'RELATIONSHIP', enName: 'Relator', tagline: '深厚友谊，真诚相待' },
-            { name: '分析 (Analytical)', domain: 'STRATEGIC', enName: 'Analytical', tagline: '追根究底，数据说话' },
-            { name: '回顾 (Context)', domain: 'STRATEGIC', enName: 'Context', tagline: '以史为鉴，理解当下' },
-            { name: '前瞻 (Futuristic)', domain: 'STRATEGIC', enName: 'Futuristic', tagline: '憧憬未来，描绘愿景' },
-            { name: '理念 (Ideation)', domain: 'STRATEGIC', enName: 'Ideation', tagline: '天马行空，创意无限' },
-            { name: '搜集 (Input)', domain: 'STRATEGIC', enName: 'Input', tagline: '求知若渴，收藏整理' },
-            { name: '思维 (Intellection)', domain: 'STRATEGIC', enName: 'Intellection', tagline: '深度思考，享受独处' },
-            { name: '学习 (Learner)', domain: 'STRATEGIC', enName: 'Learner', tagline: '学无止境，享受过程' },
-            { name: '战略 (Strategic)', domain: 'STRATEGIC', enName: 'Strategic', tagline: '运筹帷幄，另辟蹊径' },
+            {
+                name: '信仰 (Belief)',
+                domain: 'EXECUTING',
+                enName: 'Belief',
+                tagline: '矢志不渝，核心价值',
+                metaphor: '罗盘',
+                balcony: '有使命感，价值观坚定',
+                basement: '固执，道德绑架，爱说教，非黑即白',
+                mechanism: '核心价值观构成了他们生活的基石。每一项决策都必须通过这个价值观过滤器的检验。这种内在的一致性赋予了他们生活的意义和使命感。',
+                orgStrengths: '在充满道德模糊的商业世界中扮演道德罗盘。他们的行为具有高度的可预测性，建立了深层的信任。为了信仰的事业，他们愿意付出巨大的努力。',
+                blindSpots: '可能被视为固执、教条。当组织的战略方向与核心价值观产生摩擦时，他们可能成为变革的阻力。可能倾向于用自己的道德标准评判他人。'
+            },
+            {
+                name: '公平 (Consistency)',
+                domain: 'EXECUTING',
+                enName: 'Consistency',
+                tagline: '一视同仁，建立规则',
+                metaphor: '天平',
+                balcony: '公正，一视同仁，流程化',
+                basement: '官僚，刻板，不知变通，缺乏同理心',
+                mechanism: '他们敏锐地察觉到任何形式的不公。心理舒适区建立在标准化之上：只有当每个人都清楚规则并受到同等对待时，系统才能最有效地运行。他们是秩序的守护者。',
+                orgStrengths: '在需要大规模运营和标准化的组织中至关重要。他们是天生的执法者，确保政策不折不扣执行，消除工作流程中的变数。',
+                blindSpots: '可能过分强调规则本身而忽视了目的（形式主义）。可能难以做到“因材施教”，用相同方式对待高绩效者和低绩效者。'
+            },
+            {
+                name: '审慎 (Deliberative)',
+                domain: 'EXECUTING',
+                enName: 'Deliberative',
+                tagline: '深思熟虑，未雨绸缪',
+                metaphor: '扫雷器',
+                balcony: '周全，谨慎，善于风险评估',
+                basement: '犹豫不决，过度悲观，行动迟缓，多疑',
+                mechanism: '这是一种风险识别机制。当其他人看到机会时，审慎者看到的是陷阱。这是一种保护机制。他们在行动前必须先停下来，评估潜在的风险。',
+                orgStrengths: '在充满盲目乐观的团队中是必要的“刹车系统”。在合同谈判和战略规划中价值巨大，能预见错误并制定防范措施。决策质量通常很高。',
+                blindSpots: '在需要快速试错的环境中可能被视为“瓶颈”。他们在会议中的沉默常被误解为没意见，如果不被邀请，可能不会主动分享宝贵的警告。'
+            },
+            {
+                name: '纪律 (Discipline)',
+                domain: 'EXECUTING',
+                enName: 'Discipline',
+                tagline: '井然有序，注重结构',
+                metaphor: '脚手架',
+                balcony: '井井有条，精准，有条理',
+                basement: '强迫症，僵化，害怕混乱，对他人要求苛刻',
+                mechanism: '核心是对可预测性的渴望。他们会本能地建立结构：时间表、截止日期。混乱和无序会让他们感到生理上的焦虑。',
+                orgStrengths: '效率的架构师。在需要零误差的领域（如财务、航空）无价。当团队陷入混乱时，能迅速理清头绪，建立流程。',
+                blindSpots: '当结构被打破或需要即兴发挥时，可能会感到瘫痪。可能对他人的低效率或无组织性缺乏包容心。'
+            },
+            {
+                name: '专注 (Focus)',
+                domain: 'EXECUTING',
+                enName: 'Focus',
+                tagline: '目标明确，拒绝干扰',
+                metaphor: '激光',
+                balcony: '目标明确，抗干扰',
+                basement: '隧道视野，缺乏大局观，不灵活，对偏离目标的人不耐烦',
+                mechanism: '一种强大的过滤机制。评估每一个行动：“这是否有助于我达成目标？”如果是否定的，就毫不留情地过滤掉。',
+                orgStrengths: '优先级管理专家。在信息过载时代，能清晰分辨“紧急”与“重要”。能让会议保持简短、切题。',
+                blindSpots: '可能产生“隧道视野”，错过外围的新机会。如果认为社交互动与目标无关，可能会表现得冷漠。'
+            },
+            {
+                name: '责任 (Responsibility)',
+                domain: 'EXECUTING',
+                enName: 'Responsibility',
+                tagline: '一诺千金，完全心理所有权',
+                metaphor: '契约',
+                balcony: '可靠，信守承诺',
+                basement: '大包大揽，过度承诺，不懂拒绝，出了问题过度自责',
+                mechanism: '他们的名字和声誉与承诺紧密相连。如果无法兑现，会感到深切的羞愧。道歉是不够的；只有补偿才是解脱。',
+                orgStrengths: '组织的“安全阀”。领导者知道只要交给他们就等于完成了。不仅完成任务，而且以高标准完成。',
+                blindSpots: '由于无法拒绝而导致过度劳累。往往承担了别人的责任。可能倾向于微观管理，因为很难信任别人能同样负责。'
+            },
+            {
+                name: '排难 (Restorative)',
+                domain: 'EXECUTING',
+                enName: 'Restorative',
+                tagline: '解决问题，恢复生机',
+                metaphor: '医生',
+                balcony: '善于解决问题，扭转乾坤',
+                basement: '负能量中心，总盯着毛病，和平时期就想制造问题',
+                mechanism: '像急诊室医生，喜欢诊断症状、查找病因。满足感来自于“从负到零”——把坏掉的东西修好。对负面情况有非凡的容忍度。',
+                orgStrengths: '危机解决专家。在企业转型或故障排除中不可或缺。总是能看到流程中的缺陷并提出修复方案。',
+                blindSpots: '可能过度关注弱点而忽视了对优势的培养。可能被视为消极或爱挑刺，因为总是指出哪里出了问题。'
+            },
+            // === 影响力 Influencing ===
+            {
+                name: '行动 (Activator)',
+                domain: 'INFLUENCING',
+                enName: 'Activator',
+                tagline: '此时不做，更待何时',
+                metaphor: '起跑枪',
+                balcony: '启动快，推动力强',
+                basement: '鲁莽，冲动，缺乏耐心，虎头蛇尾',
+                mechanism: '只有行动才是真实的。相信“行动-学习-再行动”的循环。思维是基于动量的——一旦停止，就需要巨大的能量重新启动。',
+                orgStrengths: '催化剂。能将模糊的想法迅速转化为具体的“下一步”。勇气具有传染性，带领团队跨越恐惧。',
+                blindSpots: '可能在未充分思考下行动，导致可预防的错误。速度太快，可能把需要时间的同事甩在身后。'
+            },
+            {
+                name: '统率 (Command)',
+                domain: 'INFLUENCING',
+                enName: 'Command',
+                tagline: '掌舵领航，直面冲突',
+                metaphor: '舵手',
+                balcony: '果断，有气场，敢于对峙',
+                basement: '独裁，粗暴，有攻击性，不善倾听',
+                mechanism: '情感上的清晰度。本能地感到需要对真空状态负责。不回避令人不快的真相，相信公开讨论是解决问题的唯一途径。',
+                orgStrengths: '危机领导力。在他人麻痹时能果断决策，给团队安全感。能直面办公室政治，打破僵局。',
+                blindSpots: '可能被视为霸道、独裁。强势风格若不加节制会打击士气。直率可能伤害他人感情。'
+            },
+            {
+                name: '沟通 (Communication)',
+                domain: 'INFLUENCING',
+                enName: 'Communication',
+                tagline: '妙语连珠，生动表达',
+                metaphor: '讲故事的人',
+                balcony: '表达生动，善于言辞',
+                basement: '话痨，肤浅，夸夸其谈，只说不做',
+                mechanism: '如果一个想法不能被生动表达，它就不存在。大脑不断寻找完美的词汇。核心需求是被理解和被听到。',
+                orgStrengths: '愿景传达。能将枯燥数据转化为引人入胜的故事。擅长将晦涩概念变得简单易懂。',
+                blindSpots: '可能说得比听得多。可能过于注重形式（怎么说）而忽视内容（说什么）。'
+            },
+            {
+                name: '竞争 (Competition)',
+                domain: 'INFLUENCING',
+                enName: 'Competition',
+                tagline: '力争上游，追求胜利',
+                metaphor: '记分牌',
+                balcony: '渴望胜利，有进取心',
+                basement: '好斗，输不起，嫉妒心强，把同事当敌人',
+                mechanism: '表现是相对的。需要对手，需要比较，需要赢。对排名极度敏感。胜利不仅带来快乐，更带来存在的确认感。',
+                orgStrengths: '提升标准。自然地提高了整个团队的绩效标准。在以结果为导向的领域能激发出惊人的能量。',
+                blindSpots: '可能把一切都变成比赛，破坏合作。如果觉得自己赢不了，可能会选择完全退出。'
+            },
+            {
+                name: '完美 (Maximizer)',
+                domain: 'INFLUENCING',
+                enName: 'Maximizer',
+                tagline: '精益求精，从优秀到卓越',
+                metaphor: '抛光机',
+                balcony: '精益求精，追求卓越',
+                basement: '完美主义，挑剔，爱抱怨，抓小放大',
+                mechanism: '关注“什么好”。致力于将强项转化为卓越。对潜力有敏锐嗅觉，痴迷于打磨璞玉。对平均水平感到厌恶。',
+                orgStrengths: 'ROI专家。知道把什么人放在什么位置效益最大。设定世界级的质量标准，推动产品升级。',
+                blindSpots: '可能对低绩效者缺乏耐心。可能陷入无休止的改进循环（“完美是完成的敌人”）。'
+            },
+            {
+                name: '自信 (Self-Assurance)',
+                domain: 'INFLUENCING',
+                enName: 'Self-Assurance',
+                tagline: '内心笃定，相信直觉',
+                metaphor: '龙骨',
+                balcony: '内心笃定，有信念',
+                basement: '傲慢，自负，听不进意见，盲目自信',
+                mechanism: '拥有内部罗盘。相信自己的直觉和判断力。不需要外部验证。内在的确定性赋予了特殊的气场。',
+                orgStrengths: '确定性锚点。在动荡时期提供心理稳定。敢于走别人不敢走的路，尝试新方法。',
+                blindSpots: '可能演变为傲慢，听不进建议。可能严重低估风险，因为过度相信自己的应对能力。'
+            },
+            {
+                name: '取悦 (Woo)',
+                domain: 'INFLUENCING',
+                enName: 'Woo',
+                tagline: '赢得他人，享受社交',
+                metaphor: '社交握手',
+                balcony: '有魅力，善于赢得他人好感',
+                basement: '肤浅，虚荣，不真诚，利用他人',
+                mechanism: '陌生人是能量来源。享受“破冰”的过程。相信“没有陌生人，只有还未谋面的朋友”。',
+                orgStrengths: '社交催化剂。能把拘谨的人拉出来。天生的公关和销售，构建网络。',
+                blindSpots: '可能被误解为肤浅。如果不解释这种风格，别人可能以为是虚伪。'
+            },
+            {
+                name: '追求 (Significance)',
+                domain: 'INFLUENCING',
+                enName: 'Significance',
+                tagline: '渴望认可，产生影响',
+                metaphor: '聚光灯',
+                balcony: '渴望被关注，希望与众不同',
+                basement: '爱出风头，虚荣，需要被吹捧，玻璃心',
+                mechanism: '对影响力的深层渴望。希望工作有分量，被视为专家。恐惧平庸和被忽视。',
+                orgStrengths: '高绩效驱动。喜欢高风险高回报的任务。注重形象，是组织声誉的优秀代表。',
+                blindSpots: '可能只关注带来声名的项目而逃避琐碎工作。缺乏认可时积极性会枯竭。'
+            },
+            // === 关系建立 Relationship ===
+            {
+                name: '适应 (Adaptability)',
+                domain: 'RELATIONSHIP',
+                enName: 'Adaptability',
+                tagline: '随遇而安，活在当下',
+                metaphor: '河流',
+                balcony: '随遇而安，活在当下',
+                basement: '毫无计划，拖延症，立场不坚定，随波逐流',
+                mechanism: '未来是由当下的选择不断创造出来的。像水一样根据容器改变形状。心理灵活性使他们能迅速处理压力。',
+                orgStrengths: '压力下的冷静。当计划崩溃时能立即对新现实做出反应。在快速变化的环境中迅速调整。',
+                blindSpots: '可能被认为缺乏长远规划。容易被眼前紧急事务分心而忽略长期战略。'
+            },
+            {
+                name: '关联 (Connectedness)',
+                domain: 'RELATIONSHIP',
+                enName: 'Connectedness',
+                tagline: '万物相连，因果循环',
+                metaphor: '生态网',
+                balcony: '万物一体，有大局观',
+                basement: '宿命论，不作为，有点神神叨叨',
+                mechanism: '桥梁构建思维。看到无关事物间隐秘的联系。相信“蝴蝶效应”，任何对他人的伤害都会伤害自己。',
+                orgStrengths: '打破孤岛。向不同部门展示共同利益。赋予意义，帮助员工理解微小工作如何贡献宏大愿景。',
+                blindSpots: '哲学化思维可能被视为“软弱”。可能因相信“一切终将解决”而表现得过于被动。'
+            },
+            {
+                name: '伯乐 (Developer)',
+                domain: 'RELATIONSHIP',
+                enName: 'Developer',
+                tagline: '见微知著，成人之美',
+                metaphor: '园丁',
+                balcony: '乐于助人成长，有耐心',
+                basement: '扶不起的也要扶，对“朽木”浪费时间，忽视精英',
+                mechanism: '生活动力来自于观察成长的迹象。对初学者有无限耐心。相信每个人都是正在进行中的作品。',
+                orgStrengths: '导师与教练。通过真诚鼓励帮助员工克服自我怀疑。提高员工忠诚度和留存率。',
+                blindSpots: '可能在低潜力员工身上投入过多资源。在需要激进变革或淘汰人员时显得犹豫。'
+            },
+            {
+                name: '体谅 (Empathy)',
+                domain: 'RELATIONSHIP',
+                enName: 'Empathy',
+                tagline: '感同身受，情绪共鸣',
+                metaphor: '情绪雷达',
+                balcony: '感同身受，富有同情心',
+                basement: '情绪海绵，容易被影响，优柔寡断，滥好人',
+                mechanism: '不仅仅是同情，是本能的共情。能切实感觉到别人的感受。对于他们，情绪也是事实。',
+                orgStrengths: '情绪智力。团队的情绪晴雨表，预测员工反应。建立深层信任，让人感到被“听到”。',
+                blindSpots: '可能吸收负面情绪导致情绪耗竭。可能因不愿造成痛苦而回避艰难决定。'
+            },
+            {
+                name: '和谐 (Harmony)',
+                domain: 'RELATIONSHIP',
+                enName: 'Harmony',
+                tagline: '求同存异，避免冲突',
+                metaphor: '调解人',
+                balcony: '寻求共识，厌恶冲突',
+                basement: '和事佬，不敢表达真实观点，回避问题，效率低下',
+                mechanism: '摩擦是低效的。通过寻找共同点可以走得更远。务实，不想在情绪对抗中浪费时间。',
+                orgStrengths: '冲突化解。平息激动情绪，引导解决问题。在政治中穿针引线。',
+                blindSpots: '为避免冲突可能牺牲最佳方案（虚假和谐）。在需要激烈辩论激发创新时会感到不适。'
+            },
+            {
+                name: '包容 (Includer)',
+                domain: 'RELATIONSHIP',
+                enName: 'Includer',
+                tagline: '海纳百川，不落一人',
+                metaphor: '扩大的圆圈',
+                balcony: '接纳他人，避免排外',
+                basement: '缺乏判断，来者不拒，害怕被小团体排斥',
+                mechanism: '对“局外人”有敏锐感知。痛恨小圈子。相信每个人都有独特贡献，多样性是资产。',
+                orgStrengths: '整合专家。确保新人迅速融入，不让任何人掉队。防止群体思维。',
+                blindSpots: '因试图取悦每个人而难以做出人事决定。可能导致会议规模过大，效率降低。'
+            },
+            {
+                name: '个别 (Individualization)',
+                domain: 'RELATIONSHIP',
+                enName: 'Individualization',
+                tagline: '因材施教，独一无二',
+                metaphor: '定制工匠',
+                balcony: '洞察每个人的独特之处',
+                basement: '区别对待，显得不公，管理复杂化，讨厌标准化流程',
+                mechanism: '排斥概括论。眼中没有“这一类人”，只有具体的人。拥有极高分辨率的人际观察力。',
+                orgStrengths: '卓越管理。知道因材施教。像拼图高手一样构建互补团队。',
+                blindSpots: '难以建立标准化流程。可能被误解为偏心。'
+            },
+            {
+                name: '积极 (Positivity)',
+                domain: 'RELATIONSHIP',
+                enName: 'Positivity',
+                tagline: '乐观向上，充满热情',
+                metaphor: '光源',
+                balcony: '乐观，热情，能感染他人',
+                basement: '天真，不切实际，忽视问题的严重性（有毒的正能量）',
+                mechanism: '一种认知选择，关注好的一面。相信工作应该是愉快的。对愤世嫉俗者有天然免疫力。',
+                orgStrengths: '士气助推器。在困难时期是救生圈。创造充满认可和活力的组织氛围。',
+                blindSpots: '乐观可能显得肤浅。可能刻意回避消极的人或负面反馈，与现实脱节。'
+            },
+            {
+                name: '交往 (Relator)',
+                domain: 'RELATIONSHIP',
+                enName: 'Relator',
+                tagline: '深厚友谊，真诚相待',
+                metaphor: '深锚',
+                balcony: '喜欢深度关系，真诚',
+                basement: '圈子小，慢热，不喜交际，对“外人”冷漠',
+                mechanism: '追求关系的深度。看重真诚、信任。愿意暴露脆弱。一旦进入核心圈子，表现出极度忠诚。',
+                orgStrengths: '信任基石。建立的深层信任使团队能坦诚沟通。是愿意为你“挡子弹”的队友。',
+                blindSpots: '可能显得排外。建立信任需要时间，在临时项目中可能是劣势。'
+            },
+            // === 战略思维 Strategic ===
+            {
+                name: '分析 (Analytical)',
+                domain: 'STRATEGIC',
+                enName: 'Analytical',
+                tagline: '追根究底，数据说话',
+                metaphor: '显微镜',
+                balcony: '逻辑严谨，追求数据和事实',
+                basement: '冷漠，麻木，分析瘫痪，爱泼冷水',
+                mechanism: '大脑由怀疑和逻辑驱动。剥离情绪，寻找根本原因。不能容忍模糊不清。“真相”隐藏在数据中。',
+                orgStrengths: '严谨决策。防止基于情绪的错误决定。在辩论中提供冷静客观的事实。',
+                blindSpots: '不断的质疑可能被视为吹毛求疵。可能陷入“分析瘫痪”，推迟行动。'
+            },
+            {
+                name: '回顾 (Context)',
+                domain: 'STRATEGIC',
+                enName: 'Context',
+                tagline: '以史为鉴，理解当下',
+                metaphor: '后视镜',
+                balcony: '鉴往知来，善于复盘',
+                basement: '活在过去，沉湎历史，墨守成规',
+                mechanism: '如果不了解过去，就无法理解现在。相信历史模式会重演。了解起源和演变过程带来信心。',
+                orgStrengths: '智慧传承，组织的记忆库。避免重蹈覆辙。擅长向新员工解释背景，建立归属感。',
+                blindSpots: '可能被视为守旧派，抵触变革。若环境发生根本变化，过去的经验可能失效。'
+            },
+            {
+                name: '前瞻 (Futuristic)',
+                domain: 'STRATEGIC',
+                enName: 'Futuristic',
+                tagline: '憧憬未来，描绘愿景',
+                metaphor: '望远镜',
+                balcony: '富有远见，憧憬未来',
+                basement: '空想家，不切实际，忽视当下',
+                mechanism: '梦想家。现实往往枯燥，未来充满无限可能。能生动想象未来细节。对未来的痴迷提供当下动力。',
+                orgStrengths: '愿景激励。描绘令人向往的未来，激励团队。捕捉市场微弱信号，抢占先机。',
+                blindSpots: '愿景可能过于超前，无法落地。可能忽视当下的运营细节。'
+            },
+            {
+                name: '理念 (Ideation)',
+                domain: 'STRATEGIC',
+                enName: 'Ideation',
+                tagline: '天马行空，创意无限',
+                metaphor: '万花筒',
+                balcony: '创意多，善于联想',
+                basement: '思维发散，不切实际，三分钟热度',
+                mechanism: '创意生成器。痛恨例行公事。喜欢寻找新角度。通过概念碰撞获得快感。',
+                orgStrengths: '创新源泉。提供新颖视角。当常规方法失效时，能提出突破性替代方案。',
+                blindSpots: '想法太多缺乏焦点。跳跃性思维可能让逻辑严密的同事难以跟上。'
+            },
+            {
+                name: '搜集 (Input)',
+                domain: 'STRATEGIC',
+                enName: 'Input',
+                tagline: '求知若渴，收藏整理',
+                metaphor: '海绵/图书馆',
+                balcony: '好奇，喜欢收集信息',
+                basement: '囤积狂，松鼠病，只收不看，抓不住重点',
+                mechanism: '内在的囤积欲。好奇心强。驱动力是恐惧——恐惧不知道答案。相信“总有一天会派上用场”。',
+                orgStrengths: '知识库。团队的百科全书。持续学习，迅速掌握新领域知识。',
+                blindSpots: '认知超载，未能转化为产出。物理或数字空间的混乱。'
+            },
+            {
+                name: '思维 (Intellection)',
+                domain: 'STRATEGIC',
+                enName: 'Intellection',
+                tagline: '深度思考，享受独处',
+                metaphor: '深潜员',
+                balcony: '喜欢深度思考，反省',
+                basement: '纸上谈兵，想得太多做得太少，脱离群众',
+                mechanism: '思考是一种持续的心理状态。需要独处。关注“为什么做”以及“这意味着什么”。',
+                orgStrengths: '深度思考。不满足于肤浅答案。能从纷繁复杂中提炼深刻见解。',
+                blindSpots: '可能因长时间沉思被误解为孤僻。有时会把简单问题复杂化。'
+            },
+            {
+                name: '学习 (Learner)',
+                domain: 'STRATEGIC',
+                enName: 'Learner',
+                tagline: '学无止境，享受过程',
+                metaphor: '攀登者',
+                balcony: '好学，求知欲强',
+                basement: '兴趣广泛但不精，为学而学，成果转化差',
+                mechanism: '从“无知”到“胜任”的旅程最令人兴奋。一旦掌握可能感到厌倦。不害怕接触新事物。',
+                orgStrengths: '适应变革。早期采用者。激发组织的学习氛围，推动持续改进。',
+                blindSpots: '可能为了学习而学习。长期从事重复性工作是最大浪费。'
+            },
+            {
+                name: '战略 (Strategic)',
+                domain: 'STRATEGIC',
+                enName: 'Strategic',
+                tagline: '运筹帷幄，另辟蹊径',
+                metaphor: 'GPS导航',
+                balcony: '看到多种可能性，总有B计划',
+                basement: '把简单问题复杂化，光说不练，显得很有心机',
+                mechanism: '关于“选择”。大脑自动进行情景模拟，剔除死胡同，选出最佳路线。直觉性的模式识别。',
+                orgStrengths: '方向感与效率。透过混乱看本质。能迅速评估选项并做出最佳选择。',
+                blindSpots: '思维跳跃太快，可能被认为武断。对反应慢的人缺乏耐心。'
+            }
         ];
     
-        // --- API Logic ---
+        // --- API Logic (Unchanged) ---
         const callDeepSeekAPI = async (messages, apiKey, onChunk, onComplete, onError) => {
             if (!apiKey) {
                 onError("请先点击右上角的“配置 Key”按钮进行设置");
@@ -146,48 +515,25 @@
                         stream: false 
                     })
                 });
-                
                 if (!response.ok) {
                     let errorMsg = `API 请求失败 (${response.status})`;
                     try {
                         const err = await response.json();
-                        if (err.error && err.error.message) {
-                            if (err.error.message.includes("Insufficient Balance")) {
-                                errorMsg = "⚠️ 账户余额不足 (Insufficient Balance)。请登录 DeepSeek 官网充值后重试。";
-                            } else if (err.error.message.includes("Invalid API Key")) {
-                                errorMsg = "⚠️ API Key 无效。请检查 Key 是否正确复制。";
-                            } else {
-                                errorMsg = `API 错误: ${err.error.message}`;
-                            }
-                        }
+                        if (err.error && err.error.message) errorMsg = err.error.message;
                     } catch (e) {}
                     throw new Error(errorMsg);
                 }
-                
                 const data = await response.json();
-                if (!data.choices || !data.choices.length) throw new Error("API 返回数据格式异常");
                 onComplete(data.choices[0].message.content);
             } catch (error) {
-                console.error("DeepSeek API call failed:", error);
-                if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-                     onError("网络请求失败。可能是网络问题，或者浏览器拦截了请求 (CORS)。如果是 DeepSeek 官方 API，通常支持跨域；请检查控制台以获取更多细节。");
-                } else {
-                     onError(error.message);
-                }
+                onError(error.message);
             }
         };
     
         const generatePrompts = (myStrengths) => {
-            if (myStrengths.length === 0) return ["我该如何开始探索我的才干？", "什么是才干的'阴影面' (Basement)？", "盖洛普测试的核心理念是什么？"];
+            if (myStrengths.length === 0) return ["我该如何开始探索我的才干？", "什么是才干的'阴影面'？"];
             const top1 = myStrengths[0];
-            const prompts = [`我的核心才干【${top1.name}】如何影响我的决策？`];
-            if (myStrengths.length >= 2) prompts.push(`我的前两个才干【${myStrengths[0].name}】和【${myStrengths[1].name}】如何协作？`);
-            const domains = myStrengths.map(t => t.domain);
-            const domainCounts = domains.reduce((acc, d) => ({...acc, [d]: (acc[d] || 0) + 1}), {});
-            const maxDomain = Object.keys(domainCounts).reduce((a, b) => domainCounts[a] > domainCounts[b] ? a : b);
-            prompts.push(`我的才干集中在【${DOMAINS[maxDomain].name}】，这对我意味着什么？`);
-            prompts.push(`基于我的才干组合，我适合什么样的职业环境？`);
-            return prompts;
+            return [`我的核心才干【${top1.name}】如何影响我的决策？`, `【${top1.name}】在压力下会表现出什么阴暗面？`, `基于我的前五个才干，我适合什么工作？`];
         };
     
         const SettingsModal = ({ isOpen, onClose, apiKey, setApiKey }) => {
@@ -203,7 +549,6 @@
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-slate-700 mb-2">DeepSeek API Key</label>
                             <input type="password" value={localKey} onChange={(e) => setLocalKey(e.target.value)} placeholder="sk-..." className="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none" />
-                            <p className="text-xs text-slate-500 mt-2">Key 仅保存在浏览器本地。</p>
                         </div>
                         <button onClick={() => { setApiKey(localKey); onClose(); }} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors">保存</button>
                     </div>
@@ -211,17 +556,15 @@
             );
         };
     
-        // --- Dedicated Chat Page ---
         const ChatView = ({ myStrengths, setMyStrengths, onBack, apiKey, onOpenSettings }) => {
-            const [messages, setMessages] = useState([
-                { role: 'assistant', content: `你好！欢迎来到**才干解码室**。\n\n在这里，你可以自由排列你的才干组合。不同的排序代表了你独特的行为模式。\n\n请告诉我，你最近遇到了什么挑战？或者直接点击下方的建议问题。` }
+             const [messages, setMessages] = useState([
+                { role: 'assistant', content: `你好！欢迎来到**才干解码室**。\n\n请告诉我，你最近遇到了什么挑战？` }
             ]);
             const [input, setInput] = useState('');
             const [isLoading, setIsLoading] = useState(false);
             const messagesEndRef = useRef(null);
     
             useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
-    
             const moveItem = (index, direction) => {
                 const newStrengths = [...myStrengths];
                 const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -234,19 +577,18 @@
                 if (!text.trim()) return;
                 if (!apiKey) { onOpenSettings(); return; }
                 const userMsg = { role: 'user', content: text };
-                const newHistory = [...messages, userMsg];
-                setMessages(newHistory);
+                setMessages(prev => [...prev, userMsg]);
                 setInput('');
                 setIsLoading(true);
                 const systemPrompt = {
                     role: 'system',
-                    content: `你是一位专业的盖洛普优势教练。用户的才干序列是（按重要性排序，第一位是核心驱动力）：${myStrengths.map((t, i) => `${i+1}. ${t.name}`).join(', ')}。请遵循以下原则：1. 核心才干：特别关注序列中前几个才干。2. 个性化排序：用户已经手动调整了才干顺序。3. 化学反应：分析不同才干如何相互加强或制约。4. 语气：专业、鼓励、建设性。5. 格式：使用 Markdown。`
+                    content: `你是一位盖洛普优势教练。用户才干：${myStrengths.map((t, i) => `${i+1}.${t.name}`).join(', ')}。分析才干的结合、优势及盲点。`
                 };
-                await callDeepSeekAPI([systemPrompt, ...newHistory], apiKey, () => {}, (content) => {
+                await callDeepSeekAPI([systemPrompt, ...messages, userMsg], apiKey, () => {}, (content) => {
                     setMessages(prev => [...prev, { role: 'assistant', content: content }]);
                     setIsLoading(false);
                 }, (err) => {
-                    setMessages(prev => [...prev, { role: 'assistant', content: `❌ **发生错误**: ${err}` }]);
+                    setMessages(prev => [...prev, { role: 'assistant', content: `❌ 错误: ${err}` }]);
                     setIsLoading(false);
                 });
             };
@@ -254,113 +596,56 @@
     
             return (
                 <div className="flex flex-col md:flex-row h-full bg-slate-100 animate-in overflow-hidden">
-                    {/* Left Sidebar: Strengths Sorting */}
+                    {/* Left Sidebar */}
                     <div className="w-full md:w-80 bg-white border-r border-slate-200 flex flex-col z-20 shadow-lg md:shadow-none flex-shrink-0 max-h-[35vh] md:max-h-full md:h-full">
-                        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 flex-shrink-0">
+                         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 flex-shrink-0">
                             <button onClick={onBack} className="flex items-center text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                                <Icons.ArrowLeft size={18} className="mr-1" /> 返回全览
+                                <Icons.ArrowLeft size={18} className="mr-1" /> 返回
                             </button>
                             <h2 className="font-bold text-slate-800">我的才干</h2>
                         </div>
-                        
                         <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
-                            {myStrengths.length === 0 ? (
-                                <div className="text-center py-10 px-4 border-2 border-dashed border-slate-200 rounded-xl">
-                                    <p className="text-slate-400 text-sm mb-4">点击“返回全览”去点亮你的星星吧</p>
-                                </div>
-                            ) : (
-                                myStrengths.map((theme, index) => {
-                                    const domain = DOMAINS[theme.domain];
-                                    return (
-                                        <div key={theme.name} className="bg-white border border-slate-200 rounded-lg p-2.5 shadow-sm flex items-center gap-3 relative group hover:border-purple-200 transition-colors">
-                                            <div className={`w-6 h-6 rounded-full ${domain.bg || domain.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-                                                {index + 1}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="font-bold text-slate-800 text-sm truncate">{theme.name.split(' ')[0]}</span>
-                                                    <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded ${domain.lightColor} ${domain.textColor}`}>{domain.id.slice(0,4)}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col gap-1">
-                                                <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="text-slate-400 hover:text-purple-600 disabled:opacity-20"><Icons.ArrowUp size={14} /></button>
-                                                <button onClick={() => moveItem(index, 'down')} disabled={index === myStrengths.length - 1} className="text-slate-400 hover:text-purple-600 disabled:opacity-20"><Icons.ArrowDown size={14} /></button>
-                                            </div>
+                            {myStrengths.map((theme, index) => {
+                                const domain = DOMAINS[theme.domain];
+                                return (
+                                    <div key={theme.name} className="bg-white border border-slate-200 rounded-lg p-2.5 shadow-sm flex items-center gap-3">
+                                        <div className={`w-6 h-6 rounded-full ${domain.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>{index + 1}</div>
+                                        <span className="font-bold text-slate-800 text-sm flex-1">{theme.name.split(' ')[0]}</span>
+                                        <div className="flex flex-col gap-1">
+                                            <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="text-slate-400 hover:text-purple-600 disabled:opacity-20"><Icons.ArrowUp size={14} /></button>
+                                            <button onClick={() => moveItem(index, 'down')} disabled={index === myStrengths.length - 1} className="text-slate-400 hover:text-purple-600 disabled:opacity-20"><Icons.ArrowDown size={14} /></button>
                                         </div>
-                                    );
-                                })
-                            )}
-                            {myStrengths.length > 0 && (
-                                <div className="bg-blue-50 p-3 rounded-lg mt-2">
-                                    <p className="text-[10px] text-blue-700 leading-relaxed">通过↑↓箭头调整顺序，把最像你的才干排在前面。</p>
-                                </div>
-                            )}
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
-    
-                    {/* Right: Chat Area */}
+                    {/* Chat Area */}
                     <div className="flex-1 flex flex-col h-full relative overflow-hidden min-h-0 bg-slate-50">
-                        {/* Chat Header - Fixed Height */}
-                        <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-4 sm:px-6 shadow-sm z-10 flex-shrink-0">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-purple-100 p-1.5 rounded-lg text-purple-600"><Icons.Bot size={20} /></div>
-                                <span className="font-bold text-slate-800">AI 深度解码</span>
-                            </div>
-                            {/* API Key Button */}
-                            <button onClick={onOpenSettings} className={`text-xs px-3 py-1.5 rounded-full transition-colors flex items-center gap-1 flex-shrink-0 ${apiKey ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-red-50 text-red-600 hover:bg-red-100 animate-pulse'}`}>
-                                <Icons.Settings size={14} />
-                                {apiKey ? '配置 Key' : '配置 Key (未设置)'}
-                            </button>
+                         <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-4 shadow-sm z-10 flex-shrink-0">
+                            <span className="font-bold text-slate-800 flex items-center gap-2"><Icons.Bot size={20} className="text-purple-600"/> AI 解码</span>
+                            <button onClick={onOpenSettings} className="text-xs px-3 py-1.5 bg-slate-100 rounded-full flex items-center gap-1"><Icons.Settings size={14} /> {apiKey ? '已配置' : '配置 Key'}</button>
                         </div>
-    
-                        {/* Messages List - Scrollable */}
-                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scroll-smooth no-scrollbar min-h-0">
-                            {messages.map((m, i) => (
+                        <div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth no-scrollbar min-h-0">
+                             {messages.map((m, i) => (
                                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    {m.role === 'assistant' && (
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white mr-3 mt-1 shadow-md flex-shrink-0">
-                                            <Icons.Bot size={16} />
-                                        </div>
-                                    )}
-                                    <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 shadow-sm text-sm leading-relaxed ${
-                                        m.role === 'user' 
-                                        ? 'bg-slate-900 text-white rounded-tr-none' 
-                                        : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
-                                    }`}>
-                                        {m.role === 'assistant' 
-                                            ? <div className="markdown-body" dangerouslySetInnerHTML={{__html: marked.parse(m.content)}} /> 
-                                            : m.content
-                                        }
+                                    <div className={`max-w-[85%] rounded-2xl p-4 shadow-sm text-sm leading-relaxed ${m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 border border-slate-100'}`}>
+                                         {m.role === 'assistant' ? <div className="markdown-body" dangerouslySetInnerHTML={{__html: marked.parse(m.content)}} /> : m.content}
                                     </div>
                                 </div>
                             ))}
-                            {isLoading && (
-                                <div className="flex items-center gap-2 text-slate-400 text-xs ml-12">
-                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></div>
-                                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></div>
-                                    正在思考...
-                                </div>
-                            )}
+                            {isLoading && <div className="text-slate-400 text-xs ml-4">AI 正在思考...</div>}
                             <div ref={messagesEndRef} />
                         </div>
-    
-                        {/* Input Area - Fixed at Bottom */}
-                        <div className="p-4 sm:p-6 bg-white border-t border-slate-200 z-20 flex-shrink-0">
-                            {!isLoading && (
-                                <div className="flex gap-2 overflow-x-auto pb-3 no-scrollbar mb-2">
-                                    {suggestedPrompts.map((prompt, idx) => (
-                                        <button key={idx} onClick={() => handleSend(prompt)} className="whitespace-nowrap px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-medium rounded-full border border-purple-100 hover:bg-purple-100 hover:border-purple-200 transition-colors flex-shrink-0">
-                                            {prompt}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                        <div className="p-4 bg-white border-t border-slate-200 z-20 flex-shrink-0">
+                            <div className="flex gap-2 overflow-x-auto pb-3 no-scrollbar mb-2">
+                                {suggestedPrompts.map((prompt, idx) => (
+                                    <button key={idx} onClick={() => handleSend(prompt)} className="whitespace-nowrap px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-medium rounded-full border border-purple-100 hover:bg-purple-100 transition-colors flex-shrink-0">{prompt}</button>
+                                ))}
+                            </div>
                             <div className="relative">
-                                <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="输入你的困惑..." className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all" />
-                                <button onClick={() => handleSend()} disabled={isLoading || !input.trim()} className="absolute right-2 top-2 p-1.5 bg-slate-900 text-white rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                    <Icons.Send size={16} />
-                                </button>
+                                <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="输入你的困惑..." className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                                <button onClick={() => handleSend()} className="absolute right-2 top-2 p-1.5 bg-slate-900 text-white rounded-lg hover:bg-slate-700"><Icons.Send size={16} /></button>
                             </div>
                         </div>
                     </div>
@@ -368,107 +653,118 @@
             );
         };
     
-        // --- Existing Components ---
+        // --- Detailed Theme View ---
         const ThemeDetail = ({ theme, onBack, isSelected, onToggleSelect }) => {
             const domain = DOMAINS[theme.domain];
-            // Use light color for background, and original color (or darker) for text elements
-            const headerBg = domain.lightColor; // e.g., bg-purple-50
-            const headerTextMain = "text-slate-900";
-            const headerTextSub = "text-slate-600";
+            const headerBg = domain.lightColor;
             
             return (
                 <div className="flex-1 bg-white animate-in overflow-y-auto">
-                   {/* Updated Header Style */}
-                   <div className={`${headerBg} pt-12 pb-24 px-6 relative overflow-hidden`}>
+                   {/* Header - Fixed Name & Back Button */}
+                   <div className={`${headerBg} pt-10 pb-16 px-6 relative overflow-hidden border-b ${domain.borderColor}`}>
                         <div className="max-w-4xl mx-auto relative z-10">
-                            <button onClick={onBack} className={`mb-8 flex items-center ${headerTextSub} hover:${headerTextMain} transition-colors text-sm font-medium tracking-wide`}>
-                                <Icons.ArrowLeft size={16} className="mr-2" /> 返回才干全景
+                            <button onClick={onBack} className="mb-6 flex items-center text-slate-600 hover:text-slate-900 transition-colors text-sm font-medium tracking-wide">
+                                <Icons.ArrowLeft size={16} className="mr-2" /> 返回才干全览
                             </button>
-                            <div className="flex justify-between items-start">
+                            <div className="flex justify-between items-start flex-wrap gap-4">
                                 <div>
-                                    <div className="flex items-center gap-3 mb-4 opacity-80">
-                                        <domain.icon size={20} className={domain.textColor} />
-                                        <span className={`text-sm uppercase tracking-widest font-semibold ${domain.textColor}`}>{domain.name}</span>
+                                    <div className="flex items-center gap-2 mb-2 opacity-80">
+                                        <domain.icon size={18} className={domain.textColor} />
+                                        <span className={`text-xs uppercase tracking-widest font-bold ${domain.textColor}`}>{domain.name}</span>
                                     </div>
-                                    <h1 className={`text-5xl font-bold mb-6 tracking-tight ${headerTextMain}`}>{theme.name}</h1>
+                                    <h1 className="text-4xl sm:text-5xl font-bold mb-2 tracking-tight text-slate-900">{theme.name}</h1>
+                                    <p className="text-lg text-slate-600 font-light">{theme.enName}</p>
                                 </div>
                                 <button 
                                     onClick={() => onToggleSelect(theme)} 
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all shadow-sm ${
-                                        isSelected 
-                                        ? 'bg-slate-900 text-white hover:bg-slate-800' // In light mode, selected button is dark for contrast
-                                        : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all shadow-sm ${
+                                        isSelected ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
                                     }`}
                                 >
                                     <Icons.Star size={18} fill={isSelected ? "currentColor" : "none"} className={isSelected ? "text-yellow-400" : "text-slate-400"} />
                                     {isSelected ? "已添加" : "加入我的才干"}
                                 </button>
                             </div>
-                            <p className={`text-xl ${headerTextSub} font-light max-w-2xl leading-relaxed`}>
-                                拥有<span className={`font-semibold mx-1 ${domain.textColor}`}>{theme.enName}</span>才干的人，{theme.tagline}。
-                            </p>
                         </div>
-                        {/* Abstract blob - keeping it subtle */}
-                        <div className={`absolute -right-20 -bottom-40 w-96 h-96 rounded-full opacity-40 blur-3xl ${domain.color.replace('bg-', 'bg-opacity-20 ')}`}></div>
                     </div>
     
-                    <div className="max-w-3xl mx-auto px-6 -mt-16 relative z-20 pb-20">
-                        <div className="bg-white rounded-xl shadow-2xl overflow-hidden aspect-video mb-16 relative group cursor-pointer border border-slate-100">
-                             <div className="absolute inset-0 bg-slate-900/5 flex items-center justify-center group-hover:bg-slate-900/10 transition-colors">
-                                <div className={`w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
-                                    <Icons.Play size={32} className={`${domain.textColor} ml-2`} fill="currentColor" />
-                                </div>
+                    <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-20 pb-20 space-y-10">
+                        
+                        {/* 1. Core Metaphor Card */}
+                        <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-100 flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
+                            <div className={`w-20 h-20 rounded-full ${domain.lightColor} flex items-center justify-center flex-shrink-0`}>
+                                <Icons.Lightbulb size={36} className={domain.textColor} />
                             </div>
-                            <div className="absolute bottom-6 left-6 text-slate-900 font-medium bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-sm">
-                                介绍视频：{theme.enName}
+                            <div>
+                                <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">核心隐喻 (Core Metaphor)</h2>
+                                <p className="text-3xl font-bold text-slate-800 mb-3">{theme.metaphor}</p>
+                                <p className="text-slate-600 text-lg leading-relaxed italic">"{theme.tagline}"</p>
                             </div>
                         </div>
-                        <div className="space-y-16">
-                            <section>
-                                <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-                                    <span className={`w-1 h-8 ${domain.color} rounded-full mr-4`}></span>
-                                    主题描述
-                                </h2>
-                                <p className="text-lg text-slate-600 leading-loose">
-                                    {theme.fullDesc || "此才干的详细描述将展示在这里。它通常会解释这种思维、感觉和行为模式是如何自然发生的。对于拥有这个才干的人来说，这种模式是本能的，且不可或缺的。"}
-                                </p>
+
+                        {/* 2. Balcony & Basement Table */}
+                        <section>
+                            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                                <Icons.Shield size={24} className="mr-2 text-slate-400" /> 光辉与阴暗
+                            </h3>
+                            <div className="grid md:grid-cols-2 rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+                                <div className="bg-emerald-50/50 p-6 border-r border-slate-100 md:border-b-0 border-b">
+                                    <div className="flex items-center gap-2 mb-4 text-emerald-700 font-bold uppercase text-sm tracking-wide">
+                                        <Icons.Sparkles size={16} /> 光辉面 (Balcony)
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {theme.balcony.split(/[,，]/).map((item, i) => (
+                                            <span key={i} className="px-3 py-1.5 bg-white border border-emerald-100 text-emerald-800 rounded-lg text-sm font-medium shadow-sm">{item.trim()}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="bg-rose-50/50 p-6">
+                                    <div className="flex items-center gap-2 mb-4 text-rose-700 font-bold uppercase text-sm tracking-wide">
+                                        <Icons.AlertTriangle size={16} /> 阴暗面 (Basement)
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {theme.basement.split(/[,，]/).map((item, i) => (
+                                            <span key={i} className="px-3 py-1.5 bg-white border border-rose-100 text-rose-800 rounded-lg text-sm font-medium shadow-sm">{item.trim()}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* 3. Detailed Documentation */}
+                        <div className="space-y-8">
+                            {/* Internal Mechanism */}
+                            <section className="bg-slate-50 p-8 rounded-2xl border border-slate-200/60">
+                                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                                    <Icons.Search size={20} className="text-purple-500 mr-2" />
+                                    内部心理机制
+                                </h3>
+                                <p className="text-slate-700 leading-loose text-justify">{theme.mechanism}</p>
                             </section>
 
-                            {/* New Quote Section based on image_ee958a.png */}
-                            <section className="bg-slate-50 p-10 rounded-2xl border border-slate-100 relative overflow-hidden">
-                                <Icons.Quote size={64} className="absolute top-4 left-4 text-slate-200 opacity-50" />
-                                <blockquote className="relative z-10 text-center">
-                                    <p className="text-2xl font-medium text-slate-800 italic mb-4">
-                                        "{theme.quote || `我利用${theme.name}才干，将复杂转化为简单，将混乱转化为有序。`}"
-                                    </p>
-                                    <footer className={`text-sm font-bold uppercase tracking-widest ${domain.textColor}`}>
-                                        —— {theme.enName} 的心声
-                                    </footer>
-                                </blockquote>
-                            </section>
+                            <div className="grid md:grid-cols-2 gap-8">
+                                {/* Org Strengths */}
+                                <section>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                                        <Icons.Users size={20} className="text-blue-500 mr-2" />
+                                        组织中的力量与优势
+                                    </h3>
+                                    <p className="text-slate-600 leading-relaxed">{theme.orgStrengths}</p>
+                                </section>
 
-                             <section className="grid md:grid-cols-2 gap-12">
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-                                        <Icons.CheckCircle size={20} className="text-green-500 mr-2" />
-                                        高光时刻
+                                {/* Blind Spots */}
+                                <section>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                                        <Icons.Target size={20} className="text-orange-500 mr-2" />
+                                        盲点与雷区
                                     </h3>
-                                    <ul className="space-y-3 text-slate-600">
-                                        <li className="flex items-start"><span className="mr-2">•</span> 能够快速理清混乱的局面</li>
-                                        <li className="flex items-start"><span className="mr-2">•</span> 资源配置的高手</li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-                                        <Icons.X size={20} className="text-red-400 mr-2" />
-                                        潜在阴影
-                                    </h3>
-                                    <ul className="space-y-3 text-slate-600">
-                                        <li className="flex items-start"><span className="mr-2">•</span> 可能会因为频繁改变让这人感到困惑</li>
-                                        <li className="flex items-start"><span className="mr-2">•</span> 难以忍受僵化和按部就班</li>
-                                    </ul>
-                                </div>
-                            </section>
+                                    <p className="text-slate-600 leading-relaxed">{theme.blindSpots}</p>
+                                </section>
+                            </div>
+                        </div>
+                        
+                        <div className="text-center pt-8 border-t border-slate-100">
+                            <p className="text-slate-400 text-sm">© CliftonStrengths 34 深度解析资料库</p>
                         </div>
                     </div>
                 </div>
@@ -478,48 +774,25 @@
         const Overview = ({ onSelectTheme, myStrengths, onToggleSelect, onOpenChat }) => {
             const [filter, setFilter] = useState('ALL');
             const filteredThemes = filter === 'ALL' ? THEMES : THEMES.filter(t => t.domain === filter);
-            
             const activeDomain = filter !== 'ALL' ? Object.values(DOMAINS).find(d => d.id.toUpperCase() === filter) : null;
     
             return (
                 <div className="flex-1 bg-slate-50 text-slate-800 font-sans overflow-y-auto pb-24">
                     <header className="bg-white border-b border-slate-200 pt-16 pb-8 px-4 sm:px-6 text-center relative">
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
-                            CliftonStrengths<sup className="text-sm align-top text-slate-400">®</sup> 34
-                        </h1>
-                        <p className="max-w-2xl mx-auto text-lg text-slate-500 mb-8">
-                            点亮星星，构建你独一无二的才干组合。
-                        </p>
-                        
-                        {/* Filter Buttons - Tooltip Removed */}
+                        <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">CliftonStrengths<sup className="text-sm align-top text-slate-400">®</sup> 34</h1>
+                        <p className="max-w-2xl mx-auto text-lg text-slate-500 mb-8">点亮星星，构建你独一无二的才干组合。</p>
                         <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto mb-2 relative z-20">
-                            <button onClick={() => setFilter('ALL')} className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${filter === 'ALL' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 border hover:bg-slate-50'}`}>才干全景</button>
+                            <button onClick={() => setFilter('ALL')} className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${filter === 'ALL' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 border hover:bg-slate-50'}`}>才干全览</button>
                             {Object.values(DOMAINS).map(domain => (
-                                <div key={domain.id} className="relative group">
-                                    <button 
-                                        onClick={() => setFilter(domain.id === 'executing' ? 'EXECUTING' : domain.id === 'influencing' ? 'INFLUENCING' : domain.id === 'relationship' ? 'RELATIONSHIP' : 'STRATEGIC')} 
-                                        className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center transition-all ${filter === domain.id.toUpperCase() ? `${domain.color} text-white` : `bg-white text-slate-600 border hover:bg-slate-50`}`}
-                                    >
-                                        <domain.icon size={14} className="mr-2" /> 
-                                        {domain.name.split(' ')[0]}
-                                    </button>
-                                </div>
+                                <button key={domain.id} onClick={() => setFilter(domain.id === 'executing' ? 'EXECUTING' : domain.id === 'influencing' ? 'INFLUENCING' : domain.id === 'relationship' ? 'RELATIONSHIP' : 'STRATEGIC')} className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center transition-all ${filter === domain.id.toUpperCase() ? `${domain.color} text-white` : `bg-white text-slate-600 border hover:bg-slate-50`}`}>
+                                    <domain.icon size={14} className="mr-2" /> {domain.name.split(' ')[0]}
+                                </button>
                             ))}
                         </div>
-
-                        {/* Active Domain Description Banner */}
                         <div className={`transition-all duration-500 ease-in-out overflow-hidden ${activeDomain ? 'max-h-24 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}>
-                            {activeDomain && (
-                                <div className={`inline-block px-6 py-2 rounded-lg ${activeDomain.lightColor} border ${activeDomain.borderColor} max-w-2xl mx-auto`}>
-                                    <p className={`text-sm ${activeDomain.textColor} font-medium`}>
-                                        <activeDomain.icon size={14} className="inline mr-1.5 -mt-0.5" />
-                                        {activeDomain.desc}
-                                    </p>
-                                </div>
-                            )}
+                            {activeDomain && <div className={`inline-block px-6 py-2 rounded-lg ${activeDomain.lightColor} border ${activeDomain.borderColor} max-w-2xl mx-auto`}><p className={`text-sm ${activeDomain.textColor} font-medium`}><activeDomain.icon size={14} className="inline mr-1.5 -mt-0.5" />{activeDomain.desc}</p></div>}
                         </div>
                     </header>
-    
                     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                             {filteredThemes.map((theme) => {
@@ -558,7 +831,6 @@
     
             useEffect(() => { window.scrollTo(0, 0); }, [currentView]);
             useEffect(() => { localStorage.setItem('deepseek_key', apiKey); }, [apiKey]);
-    
             const toggleStrength = (theme) => {
                 setMyStrengths(prev => {
                     const exists = prev.some(t => t.name === theme.name);
@@ -566,7 +838,6 @@
                     return [...prev, theme];
                 });
             };
-    
             const goToDetail = (theme) => { setSelectedTheme(theme); setCurrentView('detail'); };
             const goToOverview = () => { setSelectedTheme(null); setCurrentView('overview'); };
             const goToChat = () => { setCurrentView('chat'); };
@@ -574,17 +845,13 @@
             return (
                 <div className="antialiased h-full flex flex-col">
                     <nav className="h-14 bg-white/80 backdrop-blur border-b border-slate-200 z-50 px-4 sm:px-6 flex justify-between items-center flex-shrink-0">
-                         <div className="font-bold text-slate-900 tracking-tight flex items-center gap-2 cursor-pointer" onClick={goToOverview}>
-                             <span></span>
-                         </div>
+                         <div className="font-bold text-slate-900 tracking-tight flex items-center gap-2 cursor-pointer" onClick={goToOverview}><span></span></div>
                          <div className="flex items-center gap-4">
-                             <div onClick={goToChat} className="hidden sm:flex items-center bg-slate-100 hover:bg-slate-200 transition-colors rounded-full px-3 py-1 cursor-pointer group" title="点击进入 AI 解码室">
+                             <div onClick={goToChat} className="hidden sm:flex items-center bg-slate-100 hover:bg-slate-200 transition-colors rounded-full px-3 py-1 cursor-pointer group">
                                  <span className="text-xs font-bold text-slate-500 uppercase mr-2 group-hover:text-slate-700">我的才干</span>
                                  <div className="flex gap-1 items-center">
                                     {myStrengths.length === 0 && <span className="text-[10px] text-slate-400 font-normal">点击星星选择</span>}
-                                    {myStrengths.slice(0, 5).map((_, i) => (
-                                        <div key={i} className={`w-2 h-2 rounded-full bg-slate-800`}></div>
-                                    ))}
+                                    {myStrengths.slice(0, 5).map((_, i) => <div key={i} className={`w-2 h-2 rounded-full bg-slate-800`}></div>)}
                                     {myStrengths.length > 5 && <span className="text-[10px] font-bold text-slate-600 ml-0.5">+{myStrengths.length - 5}</span>}
                                  </div>
                                  <Icons.MessageSquare size={14} className="ml-2 text-slate-400 group-hover:text-slate-600" />
