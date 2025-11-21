@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CliftonStrengths 34 才干全景</title>
+
+    <!-- 1. 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. 引入 React 和 ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 3. 引入 Babel (用于解析 JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        /* 自定义动画配置，因为 CDN 版 Tailwind 默认没有 animate-in */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
+        .slide-in-from-bottom-4 { animation: slideUp 0.5s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <!-- 4. 你的 React 代码 -->
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+    
+        // --- 图标组件 (替代 lucide-react 库，直接内嵌 SVG 以便独立运行) ---
+        const IconWrapper = ({ children, size = 24, className = "", ...props }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={size} 
+                height={size} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
+                {...props}
+            >
+                {children}
+            </svg>
+        );
+    
+        const ArrowLeft = (props) => <IconWrapper {...props}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></IconWrapper>;
+        const Star = (props) => <IconWrapper {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></IconWrapper>;
+        const Zap = (props) => <IconWrapper {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></IconWrapper>;
+        const Heart = (props) => <IconWrapper {...props}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></IconWrapper>;
+        const Brain = (props) => <IconWrapper {...props}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.5A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.5A2.5 2.5 0 0 0 14.5 2Z"/></IconWrapper>;
+        const Quote = (props) => <IconWrapper {...props}><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v5c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 1-1 1Z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v5c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 1-1 1Z"/></IconWrapper>;
+        const CheckCircle = (props) => <IconWrapper {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconWrapper>;
+        const Play = (props) => <IconWrapper {...props}><polygon points="5 3 19 12 5 21 5 3"/></IconWrapper>;
+        const X = (props) => <IconWrapper {...props}><path d="M18 6 6 18"/><path d="m6 6 18 12"/></IconWrapper>;
+    
+        // --- 数据源 ---
+        const DOMAINS = {
+            EXECUTING: { id: 'executing', name: '执行力 (Executing)', color: 'bg-purple-600', lightColor: 'bg-purple-50', textColor: 'text-purple-600', borderColor: 'border-purple-200', icon: Zap, desc: '拥有执行力才干的人通晓如何以此促成事情的发生。' },
+            INFLUENCING: { id: 'influencing', name: '影响力 (Influencing)', color: 'bg-orange-500', lightColor: 'bg-orange-50', textColor: 'text-orange-600', borderColor: 'border-orange-200', icon: Star, desc: '拥有影响力才干的人有助于团队触及更广泛的受众。' },
+            RELATIONSHIP: { id: 'relationship', name: '关系建立 (Relationship)', color: 'bg-blue-500', lightColor: 'bg-blue-50', textColor: 'text-blue-600', borderColor: 'border-blue-200', icon: Heart, desc: '拥有关系建立才干的人是将团队凝聚在一起的粘合剂。' },
+            STRATEGIC: { id: 'strategic', name: '战略思维 (Strategic)', color: 'bg-green-600', lightColor: 'bg-green-50', textColor: 'text-green-600', borderColor: 'border-green-200', icon: Brain, desc: '拥有战略思维才干的人能帮助团队着眼于未来的可能性。' }
+        };
+    
+        const THEMES = [
+            { name: '成就 (Achiever)', domain: 'EXECUTING', enName: 'Achiever', tagline: '不知疲倦，乐在其中' },
+            { name: '统筹 (Arranger)', domain: 'EXECUTING', enName: 'Arranger', tagline: '组织协调，化繁为简', fullDesc: "你就像一位指挥家。当你面对复杂的局面时（涉及多变的人员、流程和截止日期），你会很兴奋。你喜欢掌控这些混乱的因素，重新排列它们，直到你确定找到了最高效、最富有成效的配置。", quote: "我不仅喜欢把事情做完，我喜欢把事情做得漂亮、高效。", videoPlaceholder: "Arranger Video" },
+            { name: '信仰 (Belief)', domain: 'EXECUTING', enName: 'Belief', tagline: '矢志不渝，核心价值' },
+            { name: '公平 (Consistency)', domain: 'EXECUTING', enName: 'Consistency', tagline: '一视同仁，建立规则' },
+            { name: '审慎 (Deliberative)', domain: 'EXECUTING', enName: 'Deliberative', tagline: '深思熟虑，未雨绸缪' },
+            { name: '纪律 (Discipline)', domain: 'EXECUTING', enName: 'Discipline', tagline: '井然有序，注重结构' },
+            { name: '专注 (Focus)', domain: 'EXECUTING', enName: 'Focus', tagline: '目标明确，拒绝干扰' },
+            { name: '责任 (Responsibility)', domain: 'EXECUTING', enName: 'Responsibility', tagline: '一诺千金，完全心理所有权' },
+            { name: '排难 (Restorative)', domain: 'EXECUTING', enName: 'Restorative', tagline: '解决问题，恢复生机' },
+            { name: '行动 (Activator)', domain: 'INFLUENCING', enName: 'Activator', tagline: '此时不做，更待何时' },
+            { name: '统率 (Command)', domain: 'INFLUENCING', enName: 'Command', tagline: '掌舵领航，直面冲突' },
+            { name: '沟通 (Communication)', domain: 'INFLUENCING', enName: 'Communication', tagline: '妙语连珠，生动表达' },
+            { name: '竞争 (Competition)', domain: 'INFLUENCING', enName: 'Competition', tagline: '力争上游，追求胜利' },
+            { name: '完美 (Maximizer)', domain: 'INFLUENCING', enName: 'Maximizer', tagline: '精益求精，从优秀到卓越' },
+            { name: '自信 (Self-Assurance)', domain: 'INFLUENCING', enName: 'Self-Assurance', tagline: '内心笃定，相信直觉' },
+            { name: '追求 (Significance)', domain: 'INFLUENCING', enName: 'Significance', tagline: '渴望认可，产生影响' },
+            { name: '取悦 (Woo)', domain: 'INFLUENCING', enName: 'Woo', tagline: '赢得他人，享受社交' },
+            { name: '适应 (Adaptability)', domain: 'RELATIONSHIP', enName: 'Adaptability', tagline: '随遇而安，活在当下' },
+            { name: '关联 (Connectedness)', domain: 'RELATIONSHIP', enName: 'Connectedness', tagline: '万物相连，因果循环' },
+            { name: '伯乐 (Developer)', domain: 'RELATIONSHIP', enName: 'Developer', tagline: '见微知著，成人之美' },
+            { name: '共情 (Empathy)', domain: 'RELATIONSHIP', enName: 'Empathy', tagline: '感同身受，情绪共鸣' },
+            { name: '和谐 (Harmony)', domain: 'RELATIONSHIP', enName: 'Harmony', tagline: '求同存异，避免冲突' },
+            { name: '包容 (Includer)', domain: 'RELATIONSHIP', enName: 'Includer', tagline: '海纳百川，不落一人' },
+            { name: '个别 (Individualization)', domain: 'RELATIONSHIP', enName: 'Individualization', tagline: '因材施教，独一无二' },
+            { name: '积极 (Positivity)', domain: 'RELATIONSHIP', enName: 'Positivity', tagline: '乐观向上，充满热情' },
+            { name: '交往 (Relator)', domain: 'RELATIONSHIP', enName: 'Relator', tagline: '深厚友谊，真诚相待' },
+            { name: '分析 (Analytical)', domain: 'STRATEGIC', enName: 'Analytical', tagline: '追根究底，数据说话' },
+            { name: '回顾 (Context)', domain: 'STRATEGIC', enName: 'Context', tagline: '以史为鉴，理解当下' },
+            { name: '前瞻 (Futuristic)', domain: 'STRATEGIC', enName: 'Futuristic', tagline: '憧憬未来，描绘愿景' },
+            { name: '理念 (Ideation)', domain: 'STRATEGIC', enName: 'Ideation', tagline: '天马行空，创意无限' },
+            { name: '搜集 (Input)', domain: 'STRATEGIC', enName: 'Input', tagline: '求知若渴，收藏整理' },
+            { name: '思维 (Intellection)', domain: 'STRATEGIC', enName: 'Intellection', tagline: '深度思考，享受独处' },
+            { name: '学习 (Learner)', domain: 'STRATEGIC', enName: 'Learner', tagline: '学无止境，享受过程' },
+            { name: '战略 (Strategic)', domain: 'STRATEGIC', enName: 'Strategic', tagline: '运筹帷幄，另辟蹊径' },
+        ];
+    
+        // --- 组件定义 ---
+        const ThemeDetail = ({ theme, onBack }) => {
+            const domain = DOMAINS[theme.domain];
+            return (
+                <div className="min-h-screen bg-white animate-in">
+                    <div className="bg-slate-900 text-white pt-12 pb-24 px-6 relative overflow-hidden">
+                        <div className="max-w-4xl mx-auto relative z-10">
+                            <button onClick={onBack} className="mb-8 flex items-center text-slate-300 hover:text-white transition-colors text-sm font-medium tracking-wide">
+                                <ArrowLeft size={16} className="mr-2" /> 返回才干列表
+                            </button>
+                            <div className="flex items-center gap-3 mb-4 opacity-80">
+                                <domain.icon size={20} className={domain.textColor.replace('text-', 'text-white ')} />
+                                <span className="text-sm uppercase tracking-widest font-semibold">{domain.name}</span>
+                            </div>
+                            <h1 className="text-5xl font-bold mb-6 tracking-tight">{theme.name}</h1>
+                            <p className="text-xl text-slate-300 font-light max-w-2xl leading-relaxed">
+                                拥有<span className={`font-semibold mx-1 ${domain.textColor.replace('text-', 'text-')}-300`}>{theme.enName}</span>才干的人，{theme.tagline}。
+                            </p>
+                        </div>
+                        <div className={`absolute -right-20 -bottom-40 w-96 h-96 rounded-full opacity-10 blur-3xl ${domain.color}`}></div>
+                    </div>
+    
+                    <div className="max-w-3xl mx-auto px-6 -mt-16 relative z-20">
+                        <div className="bg-white rounded-xl shadow-2xl overflow-hidden aspect-video mb-16 relative group cursor-pointer border border-slate-100">
+                            <div className="absolute inset-0 bg-slate-900/5 flex items-center justify-center group-hover:bg-slate-900/10 transition-colors">
+                                <div className={`w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                                    <Play size={32} className={`${domain.textColor} ml-2`} fill="currentColor" />
+                                </div>
+                            </div>
+                            <div className="absolute bottom-6 left-6 text-slate-900 font-medium bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-sm">
+                                介绍视频：{theme.enName}
+                            </div>
+                        </div>
+    
+                        <div className="space-y-16 pb-24">
+                            <section>
+                                <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+                                    <span className={`w-1 h-8 ${domain.color} rounded-full mr-4`}></span>
+                                    主题描述
+                                </h2>
+                                <p className="text-lg text-slate-600 leading-loose">
+                                    {theme.fullDesc || "此才干的详细描述将展示在这里。它通常会解释这种思维、感觉和行为模式是如何自然发生的。对于拥有这个才干的人来说，这种模式是本能的，且不可或缺的。"}
+                                </p>
+                                <p className="text-lg text-slate-600 leading-loose mt-4">
+                                    这个才干不仅是你做事的方式，更是你观察世界的滤镜。理解它，是你发挥优势的第一步。
+                                </p>
+                            </section>
+    
+                            <section className="bg-slate-50 p-10 rounded-2xl border border-slate-100 relative overflow-hidden">
+                                <Quote size={64} className="absolute top-4 left-4 text-slate-200 opacity-50" />
+                                <blockquote className="relative z-10 text-center">
+                                    <p className="text-2xl font-medium text-slate-800 italic mb-4">
+                                        "{theme.quote || `我利用${theme.name}才干，将复杂转化为简单，将混乱转化为有序。`}"
+                                    </p>
+                                    <footer className={`text-sm font-bold uppercase tracking-widest ${domain.textColor}`}>
+                                        —— {theme.enName} 的心声
+                                    </footer>
+                                </blockquote>
+                            </section>
+    
+                            <section className="grid md:grid-cols-2 gap-12">
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                                        <CheckCircle size={20} className="text-green-500 mr-2" />
+                                        高光时刻 (The Balcony)
+                                    </h3>
+                                    <ul className="space-y-3 text-slate-600">
+                                        <li className="flex items-start"><span className="mr-2">•</span> 能够快速理清混乱的局面</li>
+                                        <li className="flex items-start"><span className="mr-2">•</span> 灵活应对变化，随时调整计划</li>
+                                        <li className="flex items-start"><span className="mr-2">•</span> 资源配置的高手</li>
+                                        <li className="flex items-start"><span className="mr-2">•</span> 追求最高的效率</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                                        <X size={20} className="text-red-400 mr-2" />
+                                        潜在阴影 (The Basement)
+                                    </h3>
+                                    <ul className="space-y-3 text-slate-600">
+                                        <li className="flex items-start"><span className="mr-2">•</span> 可能会因为频繁改变让这人感到困惑</li>
+                                        <li className="flex items-start"><span className="mr-2">•</span> 难以忍受僵化和按部就班</li>
+                                        <li className="flex items-start"><span className="mr-2">•</span> 可能会接手太多控制权</li>
+                                        <li className="flex items-start"><span className="mr-2">•</span> 显得缺乏耐心</li>
+                                    </ul>
+                                </div>
+                            </section>
+                            
+                             <section>
+                                <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+                                <span className={`w-1 h-8 ${domain.color} rounded-full mr-4`}></span>
+                                如何发挥你的潜力
+                                </h2>
+                                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                                <ul className="space-y-4">
+                                    {[1, 2, 3].map((i) => (
+                                    <li key={i} className="flex group">
+                                        <div className={`flex-shrink-0 w-8 h-8 rounded-full ${domain.lightColor} ${domain.textColor} flex items-center justify-center font-bold mr-4 group-hover:scale-110 transition-transform`}>
+                                        {i}
+                                        </div>
+                                        <p className="text-slate-600 leading-relaxed pt-1">
+                                        寻找那些需要应对突发状况或复杂变量的角色。在动态的环境中，你的才干最能发光发热。避免那些死板、缺乏变化的例行公事。
+                                        </p>
+                                    </li>
+                                    ))}
+                                </ul>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+    
+        const Overview = ({ onSelectTheme }) => {
+            const [filter, setFilter] = useState('ALL');
+            const filteredThemes = filter === 'ALL' ? THEMES : THEMES.filter(t => t.domain === filter);
+    
+            return (
+                <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+                    <header className="bg-white border-b border-slate-200 pt-16 pb-12 px-4 sm:px-6 text-center">
+                        <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
+                            CliftonStrengths<sup className="text-sm align-top text-slate-400">®</sup> 34 才干全景
+                        </h1>
+                        <p className="max-w-2xl mx-auto text-lg text-slate-500 mb-8 leading-relaxed">
+                            探索定义你独特优势的DNA。每个人都有独特的天赋排序，理解它们是释放潜能的关键。
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+                            <button onClick={() => setFilter('ALL')} className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${filter === 'ALL' ? 'bg-slate-800 text-white shadow-lg scale-105' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}>全部显示</button>
+                            {Object.values(DOMAINS).map(domain => (
+                                <button
+                                    key={domain.id}
+                                    onClick={() => setFilter(domain.id === 'executing' ? 'EXECUTING' : domain.id === 'influencing' ? 'INFLUENCING' : domain.id === 'relationship' ? 'RELATIONSHIP' : 'STRATEGIC')}
+                                    className={`px-5 py-2 rounded-full text-sm font-semibold flex items-center transition-all duration-200 ${filter === domain.id.toUpperCase() ? `${domain.color} text-white shadow-md scale-105` : `bg-white text-slate-600 border border-slate-200 hover:bg-slate-50`}`}
+                                >
+                                    <domain.icon size={14} className="mr-2" />
+                                    {domain.name.split(' ')[0]}
+                                </button>
+                            ))}
+                        </div>
+                    </header>
+    
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+                        {filter === 'ALL' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                                {Object.values(DOMAINS).map(domain => (
+                                    <div key={domain.id} className={`p-5 rounded-xl border-l-4 ${domain.borderColor.replace('border', 'border-l')} bg-white shadow-sm`}>
+                                        <h3 className={`font-bold ${domain.textColor} mb-2 flex items-center`}>
+                                            <domain.icon size={18} className="mr-2" />
+                                            {domain.name.split(' (')[0]}
+                                        </h3>
+                                        <p className="text-xs text-slate-500 leading-relaxed">{domain.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+    
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                            {filteredThemes.map((theme) => {
+                                const domain = DOMAINS[theme.domain];
+                                return (
+                                    <div key={theme.name} onClick={() => onSelectTheme(theme)} className="group relative bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-40 sm:h-48">
+                                        <div className={`h-1.5 w-full ${domain.color}`}></div>
+                                        <div className="p-5 flex flex-col h-full justify-between relative z-10">
+                                            <div>
+                                                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-2 ${domain.lightColor} ${domain.textColor}`}>
+                                                    {domain.id === 'relationship' ? 'Relationship' : domain.id}
+                                                </span>
+                                                <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight mb-1 group-hover:text-slate-900">{theme.name.split(' ')[0]}</h3>
+                                                <p className="text-xs text-slate-400 font-medium">{theme.enName}</p>
+                                            </div>
+                                            <div className="mt-2 pt-3 border-t border-slate-50">
+                                                <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed group-hover:text-slate-600 transition-colors">{theme.tagline}</p>
+                                            </div>
+                                        </div>
+                                        <domain.icon className={`absolute -bottom-4 -right-4 w-24 h-24 opacity-0 group-hover:opacity-5 transition-opacity duration-500 ${domain.textColor}`} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </main>
+                    <footer className="bg-slate-900 text-slate-400 py-12 text-center text-sm">
+                        <p>© {new Date().getFullYear()} 个人才干展示站. 基于 Gallup CliftonStrengths® 概念设计.</p>
+                    </footer>
+                </div>
+            );
+        };
+    
+        function App() {
+            const [selectedTheme, setSelectedTheme] = useState(null);
+            useEffect(() => { window.scrollTo(0, 0); }, [selectedTheme]);
+            return (
+                <div className="antialiased">
+                    {selectedTheme ? <ThemeDetail theme={selectedTheme} onBack={() => setSelectedTheme(null)} /> : <Overview onSelectTheme={setSelectedTheme} />}
+                </div>
+            );
+        }
+    
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
